@@ -7,172 +7,289 @@
 <title>히로시마 3박 · 미야지마 당일치기 최종 일정</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=Roboto+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
+  /* ============================================================
+     히로시마 일정표 — 시간표/역 안내판 디자인 시스템
+     라이트 = 기본, 다크 = prefers-color-scheme (GitHub Pages라
+     data-theme 스탬프는 없음). 모든 색은 토큰에서만 나온다.
+     ============================================================ */
   :root{
-    --sea:#2b5f6e; --sea-deep:#193c47;
-    --vermilion:#d24b34; --verm-soft:#e07a63;
-    --paper:#f4f0e8; --paper-warm:#efe8da;
-    --ink:#26302f; --gold:#b88a3e; --line:rgba(43,95,110,.16);
+    color-scheme:light dark;
+
+    --bg:#e9edf0;            /* 플랫폼 콘크리트 그레이 (블루 바이어스) */
+    --surface:#ffffff;
+    --surface-2:#f2f5f8;
+    --ink:#0f1f2a;           /* 세토내해 네이비 근접 블랙 */
+    --ink-2:#42586a;
+    --ink-3:#4f6373;
+    --line:#c6d2da;
+    --line-2:#dfe6eb;
+
+    --navy:#10202b;          /* 안내판 바탕 */
+    --on-navy:#dbe6ed;
+    --on-navy-2:#8ea6b6;
+    --on-navy-accent:#63abdd;/* 네이비 위에서만 쓰는 밝은 액센트 */
+
+    --accent:#0b5f9e;        /* 채도 있는 안내판 블루 */
+    --accent-2:#08476f;
+    --accent-soft:rgba(11,95,158,.09);
+
+    --ok:#16704a;   --ok-soft:rgba(22,112,74,.10);
+    --warn:#7d5f0d; --warn-soft:rgba(125,95,13,.12);
+    --bad:#9e2f42;  --bad-soft:rgba(158,47,66,.09);
+
+    --cat-city:#0b5f9e;
+    --cat-miya:#5b4b8a;
+    --cat-ferry:#0d7d7d;
+    --cat-food:#8a5a12;
+    --cat-cafe:#8a3a5c;
+
+    --fd:'Roboto Condensed','IBM Plex Sans KR',system-ui,sans-serif;
+    --fb:'IBM Plex Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --fj:'Hiragino Sans','Hiragino Kaku Gothic ProN','Yu Gothic','IBM Plex Sans KR',sans-serif;
   }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0b141c;
+      --surface:#12202b;
+      --surface-2:#182833;
+      --ink:#e7eff5;
+      --ink-2:#a7bbc8;
+      --ink-3:#7b92a2;
+      --line:#27394a;
+      --line-2:#1d2d3a;
+
+      --navy:#070f17;
+      --on-navy:#d6e2eb;
+      --on-navy-2:#87a0b1;
+
+      --accent:#63abdd;
+      --accent-2:#93c6ea;
+      --accent-soft:rgba(99,171,221,.13);
+
+      --ok:#54c194;   --ok-soft:rgba(84,193,148,.13);
+      --warn:#d6af52; --warn-soft:rgba(214,175,82,.13);
+      --bad:#e5808f;  --bad-soft:rgba(229,128,143,.13);
+
+      --cat-city:#63abdd;
+      --cat-miya:#a595d8;
+      --cat-ferry:#4fb3b3;
+      --cat-food:#cfa04a;
+      --cat-cafe:#d97fa5;
+    }
+  }
+
+  /* ---- base ---- */
   *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{font-family:'Noto Sans KR',sans-serif;background:var(--paper);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
-  header{background:radial-gradient(130% 90% at 15% 0%, rgba(184,138,62,.16), transparent 55%),linear-gradient(165deg,var(--sea-deep),var(--sea) 78%);color:var(--paper);padding:68px 0 58px;position:relative;overflow:hidden}
-  header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:var(--vermilion)}
-  .kicker{font-family:'Shippori Mincho',serif;letter-spacing:.26em;font-size:13px;opacity:.85;margin-bottom:16px}
-  header h1{font-family:'Shippori Mincho',serif;font-weight:700;font-size:clamp(34px,6.5vw,58px);line-height:1.08;letter-spacing:.02em}
-  header h1 .jp{display:block;font-size:.44em;font-weight:500;letter-spacing:.28em;opacity:.72;margin-top:14px}
-  .meta{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:26px;font-size:13.5px}
-  .meta span{display:flex;align-items:center;gap:8px}
-  .meta b{color:var(--gold);font-weight:500}
-  .intro{padding:42px 0 4px}
-  .intro .lead{font-family:'Shippori Mincho',serif;font-size:19px;color:var(--sea);margin-bottom:12px;line-height:1.6}
-  .intro p{max-width:660px;color:#3a4b4a;font-weight:300}
-  .flow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:22px 0 2px;font-size:13px;color:var(--sea);font-weight:500}
-  .flow .node{background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 14px;text-align:center}
-  .flow .arr{color:var(--verm-soft);font-size:15px}
-  .flow small{color:#8a9998;font-weight:300;font-size:11px;display:block}
-  .baggage{margin-top:16px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;padding:12px 16px;font-size:13.5px;color:#42544f;font-weight:300}
-  .baggage b{color:var(--gold);font-weight:500}
-  .photonote{margin:18px 0 2px;background:#fff;border:1px dashed var(--verm-soft);border-radius:4px;padding:13px 16px;font-size:13px;color:#42544f;font-weight:300}
-  .photonote b{color:var(--vermilion);font-weight:500}
-  .mapbox{margin:20px 0 8px;border:1px solid var(--line);border-radius:2px;overflow:hidden;background:#fff}
-  #map{height:400px;width:100%}
-  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;padding:11px 15px;background:var(--paper-warm);font-size:12.5px}
-  .legend b{display:inline-flex;align-items:center;gap:7px;font-weight:400}
-  .sw{width:12px;height:12px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
-  .swh{width:14px;height:14px;border-radius:4px;background:#1c2431;display:inline-flex;align-items:center;justify-content:center;color:#f0c86a;font-size:9px;line-height:1}
-  .swh::before{content:"\2605"}
-  .day{padding:34px 0 8px;border-top:1px solid var(--line)}
-  .dayhead{display:flex;align-items:baseline;gap:16px;margin-bottom:3px}
-  .daynum{font-family:'Shippori Mincho',serif;font-size:13px;color:var(--vermilion);letter-spacing:.16em}
-  .day h2{font-family:'Shippori Mincho',serif;font-weight:700;font-size:clamp(23px,4.2vw,31px);color:var(--sea);letter-spacing:.01em}
-  .daysub{color:#6a7b7a;font-size:13px;margin:3px 0 8px;font-weight:300}
-  .sleep{display:inline-block;font-size:12px;background:var(--paper-warm);color:var(--gold);padding:3px 12px;border-radius:2px;margin:6px 0 20px;letter-spacing:.02em;font-weight:500}
-  .stop{display:grid;grid-template-columns:66px 1fr;gap:0 18px;padding-bottom:22px;position:relative}
-  .stop::before{content:"";position:absolute;left:13px;top:8px;bottom:-4px;width:1.5px;background:linear-gradient(var(--line),transparent)}
-  .stop:last-child::before{display:none}
-  .time{grid-row:span 3;position:relative}
-  .time .dot{position:absolute;left:7px;top:7px;width:13px;height:13px;border-radius:50%;background:var(--paper);border:2.5px solid var(--vermilion)}
-  .time .t{font-size:12.5px;color:var(--sea);font-weight:500;padding-left:30px;display:block}
-  .stop h3{font-size:16.5px;font-weight:500;margin-bottom:4px}
-  .stop h3 .jp{font-size:12px;color:#93a2a1;font-weight:300;margin-left:6px}
-  .stop p{font-size:14px;color:#42544f;font-weight:300;max-width:600px}
-  .stop .zen{border-left:2px solid var(--verm-soft);padding-left:10px;margin-top:8px;font-size:13px;color:var(--sea);font-style:italic}
-  .tag{display:inline-block;font-size:11px;background:rgba(43,95,110,.09);color:var(--sea);padding:2px 8px;border-radius:2px;margin:8px 6px 0 0}
-  .tag.eat{background:#f0e3cd;color:#8a601c}
-  .tag.spa{background:#e6ded0;color:var(--gold)}
-  .tag.zen{background:#e0e6e5;color:var(--sea)}
-  /* photo frame */
-  .photo{margin-top:14px;max-width:440px}
-  .photo .frame{position:relative;width:100%;aspect-ratio:3/2;background:linear-gradient(135deg,var(--paper-warm),#e6ddcb);border:1px solid var(--line);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-  .photo .frame img{width:100%;height:100%;object-fit:cover;display:block}
-  .photo .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;color:#9a8b6a}
-  .photo .ph .ic{font-size:26px;margin-bottom:6px;opacity:.6}
-  .photo .ph .kw{font-size:12px;color:#8a7a5a;margin-top:6px;line-height:1.5}
-  .photo .ph .kw code{background:rgba(184,138,62,.14);padding:1px 6px;border-radius:3px;font-size:11px;color:#7a5c1a}
-  .photo figcaption{font-size:11.5px;color:#8a9998;margin-top:6px;font-weight:300;display:flex;justify-content:space-between;gap:8px}
-  .photo figcaption a{color:var(--sea);text-decoration:none;border-bottom:1px dotted var(--sea)}
-  .hotels{padding:40px 0 4px;border-top:1px solid var(--line)}
-  .hotels h2{font-family:'Shippori Mincho',serif;font-size:26px;color:var(--sea);margin-bottom:6px}
-  .hotels .sub{color:#6a7b7a;font-size:13.5px;margin-bottom:22px;font-weight:300}
-  .hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
-  .hcard{background:#fff;border:1px solid var(--line);border-radius:3px;padding:16px 17px;position:relative}
-  .hcard.pick{border:1.5px solid var(--vermilion)}
-  .hcard .badge{display:inline-block;font-size:10.5px;background:var(--vermilion);color:#fff;padding:2px 8px;border-radius:2px;margin-bottom:8px;letter-spacing:.04em}
-  .hcard .badge.alt{background:var(--paper-warm);color:var(--gold)}
-  .hcard h3{font-size:15.5px;font-weight:500;margin-bottom:2px}
-  .hcard .rate{font-size:12px;color:var(--gold);font-weight:500;margin-bottom:7px}
-  .hcard p{font-size:13px;color:#42544f;font-weight:300}
-  .htag{display:inline-block;font-size:11px;background:rgba(43,95,110,.08);color:var(--sea);padding:2px 8px;border-radius:2px;margin:7px 5px 0 0}
-  .food{padding:40px 0 4px;border-top:1px solid var(--line)}
-  .food h2{font-family:'Shippori Mincho',serif;font-size:26px;color:var(--sea);margin-bottom:6px}
-  .food .sub{color:#6a7b7a;font-size:13.5px;margin-bottom:8px;font-weight:300}
-  .food .sub b{color:var(--vermilion);font-weight:500}
-  .fcat{margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
-  .fcat .cn{font-family:'Shippori Mincho',serif;font-size:12px;letter-spacing:.12em;color:var(--vermilion);border:1px solid var(--verm-soft);border-radius:20px;padding:3px 11px;flex:none}
-  .fcat h3{font-family:'Shippori Mincho',serif;font-size:18px;color:var(--sea)}
-  .fcat p{font-size:12.5px;color:#8a9998;font-weight:300}
-  .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px}
-  .fcard{background:#fff;border:1px solid var(--line);border-radius:3px;padding:15px 16px;position:relative}
-  .fcard.local{border-left:3px solid var(--vermilion)}
-  .fcard.must{border-left:3px solid var(--gold)}
-  .fcard .fh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:3px}
-  .fcard h4{font-size:15px;font-weight:500}
-  .fcard h4 .jp{font-size:11px;color:#9aa8aa;font-weight:300;margin-left:4px}
-  .fcard .rate{font-size:11.5px;color:var(--gold);font-weight:500;flex:none}
-  .fcard p{font-size:13px;color:#42544f;font-weight:300;margin-top:5px}
-  .fcard .loc{font-size:11.5px;color:var(--sea);margin-top:8px;font-weight:400}
-  .fcard .loc::before{content:"\1F4CD";margin-right:4px;font-size:10px}
-  .ftag{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:2px;margin:8px 5px 0 0;font-weight:400}
-  .ftag.g{background:#f0e3cd;color:#8a601c}
-  .ftag.v{background:rgba(210,75,52,.1);color:var(--vermilion)}
-  .flegend{display:flex;gap:16px;margin:14px 0 4px;font-size:12px;color:#6a7b7a;font-weight:300;flex-wrap:wrap}
-  .flegend b{display:inline-flex;align-items:center;gap:6px;font-weight:400}
-  .flegend .bar{width:3px;height:13px;border-radius:2px;display:inline-block}
-  .tips{margin:44px 0 40px;background:var(--sea-deep);color:var(--paper);padding:36px 32px;border-radius:2px;position:relative;overflow:hidden}
-  .tips::before{content:"";position:absolute;right:-30px;bottom:-30px;width:150px;height:150px;border-radius:50%;background:radial-gradient(var(--vermilion),transparent 70%);opacity:.22}
-  .tips h2{font-family:'Shippori Mincho',serif;font-size:23px;margin-bottom:18px;position:relative}
-  .tips ul{list-style:none;display:grid;gap:13px;position:relative}
-  .tips li{display:grid;grid-template-columns:22px 1fr;gap:11px;font-size:14px;font-weight:300;color:#d3dedd}
-  .tips li b{color:var(--gold);font-weight:500}
-  .tips li .n{font-family:'Shippori Mincho',serif;color:var(--verm-soft)}
-  .tide{margin:28px 0 0;background:#fff;border:1px solid var(--line);border-radius:3px;padding:20px 22px}
-  .tide h3{font-family:'Shippori Mincho',serif;font-size:18px;color:var(--sea);margin-bottom:12px}
-  .tide .row{display:flex;gap:14px;align-items:flex-start;font-size:13.5px;color:#42544f;font-weight:300;padding:7px 0;border-top:1px solid var(--line)}
-  .tide .row:first-of-type{border-top:none}
-  .tide .lvl{font-family:'Shippori Mincho',serif;color:var(--vermilion);font-size:15px;min-width:74px;font-weight:600}
-  footer{padding:22px 0 40px;text-align:center;color:#8a9998;font-size:12px}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:15px;font-weight:400;line-height:1.68;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+  .jp{font-family:var(--fj)}
+  a{color:var(--accent)}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .wrap{max-width:840px;margin:0 auto;padding:0 20px}
+  img{max-width:100%;height:auto}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}
+  .baggage,.photonote,.intro p,.stop p,footer{overflow-wrap:break-word}
 
+  /* 데이터 라벨: 라틴/숫자 전용 콘덴스드 (한글 글리프 없음 → 한글엔 쓰지 않는다) */
+  .kicker,.daynum,.r40-label,.dayfit-h .cap{font-family:var(--fd);font-weight:600;letter-spacing:.2em;text-transform:uppercase}
 
-  .maptools{display:flex;justify-content:flex-end;margin:0 0 6px}
-  .mapreset{font:inherit;font-family:'Noto Sans KR',sans-serif;font-size:11.5px;font-weight:400;color:#6a7b7a;background:#fff;border:1px solid var(--line);border-radius:20px;padding:5px 12px;cursor:pointer;transition:.15s}
-  .mapreset:hover{color:var(--sea);border-color:var(--sea)}
-  .mapreset:focus-visible{outline:2px solid var(--sea);outline-offset:2px}
-  /* ---- 요일 가능 여부 ---- */
-  .dayfit{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:4px;padding:18px 20px}
-  .dayfit-h{font-size:14px;color:var(--ink);margin-bottom:14px;font-weight:300}
-  .dayfit-h b{font-weight:500;color:var(--sea)}
-  .dfrow{display:grid;grid-template-columns:132px 1fr;gap:0 16px;padding:13px 0;border-top:1px solid var(--line)}
-  .dfrow:first-of-type{border-top:none;padding-top:2px}
-  .dfk{font-size:12.5px;font-weight:500;line-height:1.5;align-self:start}
-  .dfk .ic{font-size:12px;margin-right:5px}
-  .dfk small{display:block;font-size:10.5px;font-weight:300;color:#93a2a1;padding-left:18px;margin-top:2px}
-  .dfrow.bad .dfk{color:#a33a28}
-  .dfrow.warn .dfk{color:#96701f}
-  .dfrow.ok .dfk{color:#2c6b52}
-  .dfrow ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
-  .dfrow li{display:flex;gap:10px;align-items:baseline;font-size:13px;line-height:1.5;flex-wrap:wrap}
-  .dfrow li b{font-weight:500;color:var(--ink);flex:none}
-  .dfrow li span{font-size:11.5px;color:#7b8a89;font-weight:300}
-  .dfrow.bad li b{text-decoration:line-through;text-decoration-color:rgba(163,58,40,.45);color:#8a9998}
-  .dayfit-f{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:#6a7b7a;font-weight:300;line-height:1.6}
-  .dayfit-f b{color:#2c6b52;font-weight:500}
-  @media(max-width:620px){
-    .dfrow{grid-template-columns:1fr;gap:8px}
-    .dfk{padding-bottom:2px}
-    .dfk small{display:inline;padding-left:5px;margin-top:0}
-  }
-  /* ---- 탭 내비게이션 ---- */
-  .tabnav{position:sticky;top:0;z-index:900;background:rgba(244,240,232,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);box-shadow:0 1px 10px rgba(25,60,71,.05)}
-  .tabnav .wrap{display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 22px}
+  /* ---- header: 발차 안내판 ---- */
+  header{background:var(--navy);color:var(--on-navy);padding:46px 0 0;border-bottom:3px solid var(--on-navy-accent)}
+  .kicker{font-size:12px;color:var(--on-navy-2);margin-bottom:14px}
+  header h1{font-size:clamp(28px,5.4vw,44px);font-weight:600;line-height:1.15;letter-spacing:-.015em;color:#fff;text-wrap:balance}
+  header h1 .jp{display:block;font-size:.4em;font-weight:400;letter-spacing:.18em;color:var(--on-navy-2);margin-top:10px}
+  .meta{display:flex;flex-wrap:wrap;margin-top:28px;border-top:1px solid rgba(255,255,255,.13);font-size:13px}
+  .meta span{display:flex;align-items:baseline;gap:8px;color:var(--on-navy-2);padding:13px 18px 15px 0;margin-right:18px;border-right:1px solid rgba(255,255,255,.09)}
+  .meta span:last-child{border-right:0;margin-right:0}
+  .meta b{font-family:var(--fd);font-size:16px;font-weight:700;color:#fff}
+
+  /* ---- tabnav: 사인 스트립 ---- */
+  .tabnav{position:sticky;top:0;z-index:900;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.12)}
+  .tabnav .wrap{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 20px}
   .tabnav .wrap::-webkit-scrollbar{display:none}
-  .tb{font:inherit;font-family:'Noto Sans KR',sans-serif;font-size:13.5px;font-weight:500;color:#7b8a89;background:transparent;border:0;cursor:pointer;padding:15px 14px 12px;white-space:nowrap;position:relative;transition:color .15s}
-  .tb::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2.5px;background:var(--vermilion);transform:scaleX(0);transform-origin:center;transition:transform .2s}
-  .tb:hover{color:var(--sea)}
-  .tb[aria-current="true"]{color:var(--sea-deep);font-weight:700}
+  .tb{font-family:var(--fb);font-size:13.5px;font-weight:500;color:var(--on-navy-2);background:transparent;border:0;cursor:pointer;padding:14px 16px;white-space:nowrap;position:relative;transition:color .15s,background .15s}
+  .tb::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--on-navy-accent);transform:scaleX(0);transition:transform .18s}
+  .tb:hover{color:#fff}
+  .tb[aria-current="true"]{color:#fff;font-weight:600;background:rgba(255,255,255,.06)}
   .tb[aria-current="true"]::after{transform:scaleX(1)}
-  .tb:focus-visible{outline:2px solid var(--sea);outline-offset:-4px;border-radius:3px}
+  .tb:focus-visible{outline:2px solid var(--on-navy-accent);outline-offset:-3px}
   .pane{display:none}
-  .pane.is-on{display:block;animation:paneIn .22s ease}
+  .pane.is-on{display:block;animation:paneIn .2s ease}
   @keyframes paneIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
   .pane > section:first-child{border-top:none}
   .pane > section:first-child.day,.pane > section:first-child .day:first-child{border-top:none}
-  @media(prefers-reduced-motion:reduce){.pane.is-on{animation:none}.tb::after{transition:none}}
-  @media(max-width:560px){.stop{grid-template-columns:54px 1fr;gap:0 12px}.time .t{padding-left:24px;font-size:11.5px}.time .dot{left:5px}.stop::before{left:11px}}
+
+  /* ---- intro ---- */
+  .intro{padding-block:38px 4px}
+  .intro .lead{font-size:19px;font-weight:600;line-height:1.5;letter-spacing:-.01em;color:var(--ink);margin-bottom:10px;text-wrap:balance}
+  .intro p{max-width:64ch;color:var(--ink-2)}
+
+  /* 동선 노드: 시간표 구간 표기 */
+  .flow{display:flex;align-items:stretch;flex-wrap:wrap;gap:6px;margin:24px 0 2px;font-size:13px}
+  .flow .node{background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:7px 12px;text-align:center;font-weight:500;color:var(--ink)}
+  .flow .arr{display:flex;align-items:center;color:var(--ink-3);font-size:13px}
+  .flow small{display:block;font-family:var(--fd);font-size:11.5px;font-weight:600;letter-spacing:.06em;color:var(--ink-3);margin-top:1px}
+
+  /* 강조 노트 — 왼쪽 엣지는 "정보 종류"를 인코딩할 때만 */
+  .baggage{margin-top:18px;background:var(--surface);border:1px solid var(--line-2);border-left:3px solid var(--accent);padding:13px 16px;font-size:13.5px;color:var(--ink-2)}
+  .baggage b{color:var(--ink);font-weight:600}
+  .photonote{margin:18px 0 2px;background:var(--surface-2);border:1px solid var(--line-2);border-left:3px solid var(--warn);padding:13px 16px;font-size:13px;color:var(--ink-2)}
+  .photonote b{color:var(--warn);font-weight:600}
+
+  /* ---- map ---- */
+  .maptools{display:flex;justify-content:flex-end;margin:0 0 8px}
+  .mapreset{font-family:var(--fb);font-size:12px;font-weight:500;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:6px 12px;cursor:pointer;transition:.15s}
+  .mapreset:hover{color:var(--accent);border-color:var(--accent)}
+  .mapbox{margin:20px 0 8px;border:1px solid var(--line);overflow:hidden;background:var(--surface)}
+  #map{height:400px;width:100%;background:var(--surface-2)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;padding:11px 14px;background:var(--surface-2);border-top:1px solid var(--line-2);font-size:12.5px;color:var(--ink-2)}
+  .legend b{display:inline-flex;align-items:center;gap:7px;font-weight:400}
+  .sw{width:10px;height:10px;border-radius:2px;display:inline-block;box-shadow:0 0 0 1px rgba(0,0,0,.14)}
+  .swh{width:12px;height:12px;border-radius:2px;background:var(--navy);display:inline-flex;align-items:center;justify-content:center}
+  .swh::before{content:"";width:4px;height:4px;background:#fff;border-radius:1px}
+
+  /* ---- day: 발차 시각 레일 ---- */
+  .day{padding:34px 0 8px;border-top:1px solid var(--line)}
+  .dayhead{display:flex;align-items:baseline;gap:14px;margin-bottom:2px}
+  .daynum{font-size:12px;color:var(--accent);flex:none}
+  .day h2{font-size:clamp(21px,4vw,27px);font-weight:600;letter-spacing:-.015em;color:var(--ink)}
+  .daysub{color:var(--ink-3);font-size:13px;margin:4px 0 10px}
+  .sleep{display:inline-block;font-size:12px;font-weight:500;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);padding:4px 11px;border-radius:2px;margin:6px 0 22px}
+
+  .stop{display:grid;grid-template-columns:64px 1fr;gap:0 18px;padding-bottom:24px;position:relative}
+  .stop::before{content:"";position:absolute;left:4px;top:10px;bottom:0;width:1px;background:var(--line)}
+  .stop:last-child::before{display:none}
+  .time{grid-row:span 3;position:relative}
+  .time .dot{position:absolute;left:0;top:6px;width:9px;height:9px;border-radius:1px;background:var(--accent)}
+  .time .t{display:block;padding-left:20px;font-size:12.5px;font-weight:600;color:var(--ink-2);letter-spacing:.02em}
+  .stop h3{font-size:16.5px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px;color:var(--ink)}
+  .stop h3 .jp{font-size:12px;color:var(--ink-3);font-weight:400;margin-left:7px}
+  .stop p{font-size:14.5px;color:var(--ink-2);max-width:62ch}
+  .stop .zen{border-left:2px solid var(--line);padding-left:11px;margin-top:9px;font-size:13.5px;color:var(--ink-2)}
+
+  /* 칩: 한글이 들어가므로 콘덴스드를 쓰지 않는다 */
+  .tag{display:inline-block;font-size:11.5px;font-weight:500;background:var(--accent-soft);color:var(--accent);padding:3px 8px;border-radius:2px;margin:9px 6px 0 0}
+  .tag.eat{background:var(--warn-soft);color:var(--warn)}
+  .tag.spa{background:var(--surface-2);color:var(--ink-2)}
+  .tag.zen{background:var(--ok-soft);color:var(--ok)}
+
+  /* ---- photo ---- */
+  .photo{margin-top:16px;max-width:460px}
+  .photo .frame{position:relative;width:100%;aspect-ratio:3/2;background:var(--surface-2);border:1px solid var(--line-2);border-radius:2px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .photo .frame img{width:100%;height:100%;object-fit:cover;display:block}
+  .photo .frame:has(img[src]) .ph{display:none}   /* 이미지가 뜨면 자리표시자는 숨는다 */
+  .photo .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;color:var(--ink-3)}
+  .photo .ph .ic{font-size:24px;margin-bottom:6px;opacity:.5}
+  .photo .ph .kw{font-size:12px;color:var(--ink-3);margin-top:6px;line-height:1.5}
+  .photo .ph .kw code{background:var(--surface);padding:1px 6px;border-radius:2px;font-size:11px}
+  .photo figcaption{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--ink-3);margin-top:7px}
+  .photo figcaption a{color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)}
+
+  /* ---- 조수표: 진짜 표는 표처럼 ---- */
+  .tide{margin:28px 0 0;background:var(--surface);border:1px solid var(--line-2);border-radius:2px;padding:20px 22px}
+  .tide h3{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin-bottom:12px}
+  .tide .row{display:flex;gap:14px;align-items:flex-start;font-size:13.5px;color:var(--ink-2);padding:9px 0;border-top:1px solid var(--line-2)}
+  .tide .row:first-of-type{border-top:none}
+  .tide .lvl{flex:none;min-width:80px;font-family:var(--fd);font-size:16px;font-weight:700;letter-spacing:.02em;color:var(--accent)}
+
+  /* ---- 숙소 ---- */
+  .hotels{padding-block:40px 4px;border-top:1px solid var(--line)}
+  .hotels h2,.food h2{font-size:clamp(20px,3.6vw,25px);font-weight:600;letter-spacing:-.015em;color:var(--ink);margin-bottom:6px}
+  .hotels .sub,.food .sub{color:var(--ink-3);font-size:13.5px;margin-bottom:22px}
+  .food .sub{margin-bottom:8px}
+  .food .sub b{color:var(--ink-2);font-weight:600}
+  .hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  .hcard{background:var(--surface);border:1px solid var(--line-2);border-radius:2px;padding:17px 18px}
+  .hcard.pick{border-left:3px solid var(--ok)}   /* 예약 확정 = 상태 */
+  .hcard .badge{display:inline-block;font-size:11px;font-weight:600;background:var(--ok-soft);color:var(--ok);padding:3px 8px;border-radius:2px;margin-bottom:9px}
+  .hcard .badge.alt{background:var(--surface-2);color:var(--ink-2)}
+  .hcard h3{font-size:16px;font-weight:600;letter-spacing:-.01em;margin-bottom:3px;color:var(--ink)}
+  .hcard .rate{font-family:var(--fd);font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:9px}
+  .hcard p{font-size:13.5px;color:var(--ink-2)}
+  .htag{display:inline-block;font-size:11.5px;font-weight:500;background:var(--surface-2);color:var(--ink-2);padding:3px 8px;border-radius:2px;margin:8px 5px 0 0}
+
+  /* ---- 먹거리 ---- */
+  .food{padding-block:40px 4px;border-top:1px solid var(--line)}
+  .fcat{margin:28px 0 12px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .fcat .cn{flex:none;font-size:11.5px;font-weight:600;color:var(--surface);background:var(--ink);padding:3px 9px;border-radius:2px}
+  .fcat h3{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+  .fcat p{font-size:12.5px;color:var(--ink-3)}
+  .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+  .fcard{background:var(--surface);border:1px solid var(--line-2);border-radius:2px;padding:15px 16px}
+  .fcard.must{border-left:2px solid var(--cat-food)}  /* 왼쪽 엣지는 분류를 인코딩 */
+  .fcard.local{border-left:2px solid var(--cat-city)}
+  .fcard .fh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:2px}
+  .fcard h4{font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+  .fcard h4 .jp{font-size:11px;color:var(--ink-3);font-weight:400;margin-left:5px}
+  .fcard .rate{flex:none;font-family:var(--fd);font-size:13px;font-weight:700;color:var(--ink-2)}
+  .fcard p{font-size:13.5px;color:var(--ink-2);margin-top:5px}
+  .fcard .loc{display:block;font-size:12px;font-weight:500;color:var(--accent);margin-top:9px}
+  .ftag{display:inline-block;font-size:11px;font-weight:500;padding:3px 8px;border-radius:2px;margin:9px 5px 0 0}
+  .ftag.g{background:var(--warn-soft);color:var(--warn)}
+  .ftag.v{background:var(--accent-soft);color:var(--accent)}
+  .flegend{display:flex;gap:18px;margin:14px 0 4px;font-size:12.5px;color:var(--ink-2);flex-wrap:wrap}
+  .flegend b{display:inline-flex;align-items:center;gap:7px;font-weight:400}
+  .flegend .bar{width:3px;height:13px;display:inline-block}
+
+  /* ---- 계획 메모 ---- */
+  .tips{margin:44px 0 40px;background:var(--navy);color:var(--on-navy);padding:34px 30px;border-radius:2px}
+  .tips h2{font-size:21px;font-weight:600;letter-spacing:-.015em;color:#fff;margin-bottom:18px}
+  .tips ul{list-style:none;display:grid;gap:14px}
+  .tips li{display:grid;grid-template-columns:22px 1fr;gap:11px;font-size:14px;color:var(--on-navy)}
+  .tips li b{color:#fff;font-weight:600}
+  .tips li .n{font-family:var(--fd);font-size:15px;font-weight:700;color:var(--on-navy-accent)}
+
+  /* ---- 요일 가능 여부: 상태를 형태로 ---- */
+  .dayfit{margin-top:24px;background:var(--surface);border:1px solid var(--line-2);border-radius:2px;padding:18px 20px}
+  .dayfit-h{font-size:14px;color:var(--ink-2);margin-bottom:14px}
+  .dayfit-h b{font-weight:600;color:var(--ink)}
+  .dfrow{display:grid;grid-template-columns:140px 1fr;gap:0 16px;padding:13px 0 13px 11px;border-top:1px solid var(--line-2);border-left:2px solid transparent}
+  .dfrow:first-of-type{border-top:none}
+  .dfrow.bad{border-left-color:var(--bad);background:var(--bad-soft)}
+  .dfrow.warn{border-left-color:var(--warn);background:var(--warn-soft)}
+  .dfrow.ok{border-left-color:var(--ok);background:var(--ok-soft)}
+  .dfk{font-size:12.5px;font-weight:600;line-height:1.5;align-self:start}
+  .dfrow.bad .dfk{color:var(--bad)}
+  .dfrow.warn .dfk{color:var(--warn)}
+  .dfrow.ok .dfk{color:var(--ok)}
+  .dfk .ic{font-size:12px;margin-right:5px}
+  .dfk small{display:block;font-size:11px;font-weight:400;color:var(--ink-3);padding-left:18px;margin-top:2px}
+  .dfrow ul{list-style:none;display:grid;gap:5px}
+  .dfrow li{display:flex;gap:10px;align-items:baseline;font-size:13px;line-height:1.5;flex-wrap:wrap;color:var(--ink-2)}
+  .dfrow li b{font-weight:600;color:var(--ink);flex:none}
+  .dfrow li span{font-size:11.5px;color:var(--ink-3)}
+  .dfrow.bad li b{text-decoration:line-through;text-decoration-color:var(--bad);color:var(--ink-3)}
+  .dayfit-f{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-2);font-size:12px;color:var(--ink-3);line-height:1.6}
+  .dayfit-f b{color:var(--ok);font-weight:600}
+
+  footer{padding:24px 20px 44px;text-align:center;color:var(--ink-3);font-size:12px}
+
+  /* ---- responsive ---- */
+  @media(max-width:620px){
+    body{font-size:14.5px}
+    header{padding-top:36px}
+    .meta{display:grid;grid-template-columns:1fr;margin-top:22px}
+    .meta span{border-right:0;border-top:1px solid rgba(255,255,255,.08);padding:11px 0;margin-right:0}
+    .meta span:first-child{border-top:0}
+    .dfrow{grid-template-columns:1fr;gap:8px}
+    .dfk small{display:inline;padding-left:5px;margin-top:0}
+    .tips{padding:26px 20px;margin:36px 0 32px}
+    .tide{padding:16px 16px}
+    .tide .lvl{min-width:70px}
+  }
+  @media(max-width:560px){
+    .stop{grid-template-columns:56px 1fr;gap:0 12px}
+    .time .t{padding-left:17px;font-size:12px}
+    #map{height:320px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .pane.is-on{animation:none}
+    .tb::after,.tb,.mapreset{transition:none}
+  }
 </style>
 </head>
 <body>
@@ -221,11 +338,11 @@
   <div class="mapbox">
     <div id="map"></div>
     <div class="legend">
-      <b><span class="sw" style="background:#2b5f6e"></span>관광 · 도심</b>
-      <b><span class="sw" style="background:#d24b34"></span>관광 · 미야지마</b>
-      <b><span class="sw" style="background:#5dcaa5"></span>페리 선착장</b>
-      <b><span class="sw" style="background:#b88a3e"></span>먹거리 맛집</b>
-      <b><span class="sw" style="background:#7a5c9a"></span>카페</b>
+      <b><span class="sw" style="background:var(--cat-city)"></span>관광 · 도심</b>
+      <b><span class="sw" style="background:var(--cat-miya)"></span>관광 · 미야지마</b>
+      <b><span class="sw" style="background:var(--cat-ferry)"></span>페리 선착장</b>
+      <b><span class="sw" style="background:var(--cat-food)"></span>먹거리 맛집</b>
+      <b><span class="sw" style="background:var(--cat-cafe)"></span>카페</b>
       <b><span class="swh"></span>ORIGAMINN (숙소 확정)</b>
     </div>
   </div>
@@ -301,8 +418,8 @@
   <h2>히로시마 먹거리</h2>
   <p class="sub">관광 명물 <b>+</b> 히로시마 사람들이 실제로 먹는 로컬 맛집까지. 도심 밤 동선은 나가레카와·핫초보리에 몰려 있어 골목 순회가 쉬워.</p>
   <div class="flegend">
-    <b><span class="bar" style="background:var(--gold)"></span>꼭 먹어야 하는 명물</b>
-    <b><span class="bar" style="background:var(--vermilion)"></span>로컬 실전 맛집</b>
+    <b><span class="bar" style="background:var(--cat-food)"></span>꼭 먹어야 하는 명물</b>
+    <b><span class="bar" style="background:var(--cat-city)"></span>로컬 실전 맛집</b>
     <span>· 평점은 구글/타베로그 기준 · 현금만인 곳 많음</span>
   </div>
 
@@ -390,7 +507,7 @@
     </div>
   </div>
 
-  <div class="baggage" style="margin-top:22px">🍚 <b>먹거리 동선 요령</b> (아래 <a href="#rank40" style="color:var(--vermilion)">랭킹 40곳 지도</a>에 영업시간·주력메뉴 정리해뒀어) — 낮 관광지에서 명물(오코노미야키·굴·아나고메시) 챙기고, <b>밤엔 나가레카와·핫초보리 골목</b>에서 탄탄멘·마제멘·스시. 쿠니마츠·바쿠단야·오코노미무라가 다 도보 5~10분이라 밤 골목 순회로 로컬 맛 도장깨기 가능. 로컬집은 <b>휴무일·현금만</b> 많으니 주의(쿠니마츠 밤~새벽만, 츠루스시 월·일휴, 라멘요키 일휴, 옷쿤도·바쿠단야 수휴, 나가타야·핫쇼 화휴).</div>
+  <div class="baggage" style="margin-top:22px">🍚 <b>먹거리 동선 요령</b> (아래 <a href="#rank40" style="color:var(--accent)">랭킹 40곳 지도</a>에 영업시간·주력메뉴 정리해뒀어) — 낮 관광지에서 명물(오코노미야키·굴·아나고메시) 챙기고, <b>밤엔 나가레카와·핫초보리 골목</b>에서 탄탄멘·마제멘·스시. 쿠니마츠·바쿠단야·오코노미무라가 다 도보 5~10분이라 밤 골목 순회로 로컬 맛 도장깨기 가능. 로컬집은 <b>휴무일·현금만</b> 많으니 주의(쿠니마츠 밤~새벽만, 츠루스시 월·일휴, 라멘요키 일휴, 옷쿤도·바쿠단야 수휴, 나가타야·핫쇼 화휴).</div>
 </section>
 <section class="wrap food" id="rank40">
   <h2>타베로그 · 구글 랭킹 40곳</h2>
@@ -449,61 +566,75 @@
 </section>
 
 <style>
+  /* ---- 랭킹 40곳: 지도 + 시간표형 리스트 ---- */
   .r40-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 14px}
-  .r40-tab{font:inherit;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;padding:8px 14px;border-radius:20px;cursor:pointer;border:1px solid var(--line);background:#fff;color:#6a7b7a;display:inline-flex;align-items:center;gap:7px;transition:.15s}
-  .r40-tab .dot{width:9px;height:9px;border-radius:50%;background:currentColor;flex:none}
-  .r40-tab[data-on="1"][data-set="t"]{background:var(--vermilion);border-color:var(--vermilion);color:#fff}
-  .r40-tab[data-on="1"][data-set="g"]{background:var(--sea);border-color:var(--sea);color:#fff}
-  .r40-tab[data-on="1"][data-set="hotel"]{background:#1c2431;border-color:#1c2431;color:#f0c86a}
-  .r40-tab:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-  #r40-map{height:430px;width:100%;border:1px solid var(--line);border-radius:2px;background:#e8e4da;z-index:0}
+  .r40-tab{font-family:var(--fb);font-size:12.5px;font-weight:500;padding:7px 13px;border-radius:2px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);display:inline-flex;align-items:center;gap:7px;transition:.15s}
+  .r40-tab .dot{width:8px;height:8px;border-radius:2px;background:currentColor;flex:none}
+  .r40-tab[data-on="1"][data-set="t"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .r40-tab[data-on="1"][data-set="g"]{background:var(--cat-cafe);border-color:var(--cat-cafe);color:#fff}
+  .r40-tab[data-on="1"][data-set="hotel"]{background:var(--navy);border-color:var(--navy);color:#fff}
+  .r40-tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  #r40-map{height:430px;width:100%;border:1px solid var(--line);background:var(--surface-2);z-index:0}
   @media(max-width:600px){#r40-map{height:340px}}
-  .r40-pin{width:26px;height:26px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;box-shadow:0 2px 5px rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.85)}
-  .r40-pin span{transform:rotate(45deg)}
-  .r40-pin.t{background:var(--vermilion)}
-  .r40-pin.g{background:var(--sea)}
-  .r40-pin.hotel{background:#1c2431;color:#f0c86a;width:30px;height:30px;font-size:15px;border-radius:7px;transform:none}
-  .r40-pin.hotel span{transform:none}
-  .r40-lists{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+
+  /* 핀: 물방울 대신 각진 사인 태그 */
+  .r40-pin{width:24px;height:24px;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--fd);font-size:12px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.35);border:1.5px solid rgba(255,255,255,.9)}
+  .r40-pin.t{background:var(--accent)}
+  .r40-pin.g{background:var(--cat-cafe)}
+  .r40-pin.hotel{width:26px;height:26px;background:var(--navy);border-radius:3px}
+  .r40-pin.hotel span{width:6px;height:6px;background:#fff;border-radius:1px;font-size:0}
+
+  .r40-lists{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
   @media(max-width:720px){.r40-lists{grid-template-columns:1fr}}
-  .r40-col h4{font-family:'Shippori Mincho',serif;font-size:13px;letter-spacing:.1em;margin:0 0 9px;padding-bottom:7px;border-bottom:2px solid}
-  .r40-col.t h4{color:var(--vermilion);border-color:var(--vermilion)}
-  .r40-col.g h4{color:var(--sea);border-color:var(--sea)}
+  .r40-col h4{font-size:12.5px;font-weight:600;letter-spacing:.02em;margin:0 0 8px;padding-bottom:7px;border-bottom:2px solid}
+  .r40-col.t h4{color:var(--accent);border-color:var(--accent)}
+  .r40-col.g h4{color:var(--cat-cafe);border-color:var(--cat-cafe)}
   .r40-col ol{margin:0;padding:0;list-style:none}
-  .r40-col li{border-bottom:1px solid var(--line)}
-  .r40-head{width:100%;text-align:left;font:inherit;font-family:'Noto Sans KR',sans-serif;cursor:pointer;background:transparent;border:0;padding:10px 4px;display:flex;gap:9px;align-items:baseline;border-radius:3px;transition:background .12s}
-  .r40-head:hover{background:#fff}
-  .r40-head:focus-visible{outline:2px solid var(--sea);outline-offset:-2px}
-  .r40-head[aria-expanded="true"]{background:#fff}
-  .r40-rk{flex:none;width:19px;text-align:right;font-size:11px;font-weight:700;color:#93a2a1;font-variant-numeric:tabular-nums}
-  .r40-nm{flex:1;font-size:13.5px;font-weight:500;line-height:1.4}
-  .r40-nm small{display:block;font-size:11px;color:#93a2a1;font-weight:300;margin-top:2px}
-  .r40-sc{flex:none;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
-  .r40-col.t .r40-sc{color:var(--vermilion)}
-  .r40-col.g .r40-sc{color:var(--sea)}
-  .r40-chev{flex:none;width:12px;color:#93a2a1;font-size:10px;line-height:1;transition:transform .2s}
+  .r40-col li{border-bottom:1px solid var(--line-2)}
+
+  .r40-head{width:100%;text-align:left;font-family:var(--fb);cursor:pointer;background:transparent;border:0;padding:11px 6px;display:flex;gap:10px;align-items:baseline;transition:background .12s}
+  .r40-head:hover,.r40-head[aria-expanded="true"]{background:var(--surface)}
+  .r40-head:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .r40-rk{flex:none;width:20px;text-align:right;font-family:var(--fd);font-size:12.5px;font-weight:700;color:var(--ink-3)}
+  .r40-nm{flex:1;font-size:13.5px;font-weight:600;letter-spacing:-.01em;line-height:1.4;color:var(--ink)}
+  .r40-nm small{display:block;font-size:11.5px;color:var(--ink-3);font-weight:400;margin-top:2px}
+  .r40-sc{flex:none;font-family:var(--fd);font-size:14px;font-weight:700}
+  .r40-col.t .r40-sc{color:var(--accent)}
+  .r40-col.g .r40-sc{color:var(--cat-cafe)}
+  .r40-chev{flex:none;width:12px;color:var(--ink-3);font-size:10px;line-height:1;transition:transform .2s}
   .r40-head[aria-expanded="true"] .r40-chev{transform:rotate(90deg)}
-  .r40-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .24s ease;background:#fff}
+
+  .r40-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .24s ease;background:var(--surface)}
   .r40-panel[data-open="1"]{grid-template-rows:1fr}
   .r40-panel>div{overflow:hidden}
-  .r40-body{padding:2px 14px 14px 32px}
-  .r40-hours{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#42544f;font-weight:300;background:var(--paper-warm);border-radius:3px;padding:8px 10px;margin-bottom:11px;line-height:1.5}
-  .r40-hours .ic{flex:none;font-size:11px}
-  .r40-hours b{color:var(--sea);font-weight:500}
-  .r40-hours .off{color:var(--vermilion);font-weight:500}
-  .r40-label{font-size:10px;letter-spacing:.14em;color:#93a2a1;font-weight:500;margin:0 0 6px;font-family:'Shippori Mincho',serif}
+  .r40-body{padding:2px 14px 16px 36px}
+
+  /* 영업시간 = 이 페이지에서 가장 자주 확인하는 값 */
+  .r40-hours{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--ink-2);background:var(--surface-2);border-left:2px solid var(--accent);padding:9px 11px;margin-bottom:12px;line-height:1.5}
+  .r40-hours .ic{display:none}
+  .r40-hours b{font-family:var(--fd);font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:.01em}
+  .r40-hours .off{font-weight:600;color:var(--bad)}
+  .r40-label{font-size:10.5px;color:var(--ink-3);margin:0 0 7px;letter-spacing:.12em}
   .r40-menu{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
-  .r40-menu li{border:0;display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:#42544f;font-weight:300;line-height:1.45}
-  .r40-menu li::before{content:'·';color:#93a2a1;flex:none}
-  .r40-menu .price{margin-left:auto;flex:none;font-size:11.5px;font-weight:500;color:var(--gold);font-variant-numeric:tabular-nums;white-space:nowrap}
-  .r40-tip{margin:10px 0 0;font-size:12px;line-height:1.6;color:#42544f;font-weight:300;border-left:2px solid var(--verm-soft);padding-left:10px}
-  .r40-tip b{color:var(--ink);font-weight:500}
-  .r40-open{display:inline-block;margin-top:10px;font-size:11.5px;font-weight:400;color:var(--sea);text-decoration:none;border-bottom:1px dotted var(--sea)}
-  .fm-src{font-size:11.5px;color:#8a9998;margin-top:12px;font-weight:300;line-height:1.6}
-  .leaflet-popup-content-wrapper{border-radius:6px}
-  .r40-pop b{font-size:13.5px}
-  .r40-pop span{font-size:11.5px;color:#6a7b7a}
+  .r40-menu li{border:0;display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:var(--ink-2);line-height:1.45}
+  .r40-menu li::before{content:'';flex:none;width:3px;height:3px;margin-top:8px;border-radius:1px;background:var(--ink-3)}
+  .r40-menu .price{margin-left:auto;flex:none;font-family:var(--fd);font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap}
+  .r40-tip{margin:11px 0 0;font-size:12.5px;line-height:1.6;color:var(--ink-2);border-left:2px solid var(--line);padding-left:11px}
+  .r40-tip b{color:var(--ink);font-weight:600}
+  .r40-open{display:inline-block;margin-top:11px;font-size:12px;font-weight:500;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line)}
+  .r40-open:hover{border-bottom-color:var(--accent)}
+  .fm-src{font-size:11.5px;color:var(--ink-3);margin-top:12px;line-height:1.6}
+
+  /* leaflet 팝업도 토큰으로 — 다크에서 흰 박스가 튀지 않게 */
+  .leaflet-popup-content-wrapper{border-radius:2px;background:var(--surface);color:var(--ink);box-shadow:0 3px 14px rgba(0,0,0,.28)}
+  .leaflet-popup-tip{background:var(--surface)}
+  .leaflet-container a.leaflet-popup-close-button{color:var(--ink-3)}
+  .leaflet-container{font-family:var(--fb)}
+  .r40-pop b{font-size:13.5px;font-weight:600;color:var(--ink)}
+  .r40-pop span{font-size:11.5px;color:var(--ink-2)}
 </style>
+<script>window.tok=function(n){return getComputedStyle(document.documentElement).getPropertyValue("--"+n).trim()};window.TILE=matchMedia("(prefers-color-scheme:dark)").matches?"dark_all":"light_all";</script>
 
 <script>
 (function(){
@@ -557,7 +688,7 @@
   ];
 
   var map=L.map('r40-map',{scrollWheelZoom:false}).setView([34.3925,132.4600],14);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',maxZoom:19}).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/'+TILE+'/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',maxZoom:19}).addTo(map);
   map.on('click',function(){map.scrollWheelZoom.enable()});
   map.on('mouseout',function(){map.scrollWheelZoom.disable()});
 
@@ -571,7 +702,7 @@
   L.marker(HOTEL,{icon:icon('hotel','\u2605'),zIndexOffset:1000})
     .bindPopup('<div class="r40-pop"><b>ORIGAMINN</b><br><span>숙소 · 3박 · 도바시 정류장 앞</span></div>')
     .addTo(groups.hotel);
-  L.circle(HOTEL,{radius:800,color:'#1c2431',weight:1.2,fillColor:'#1c2431',fillOpacity:.05,dashArray:'5 4'}).addTo(groups.hotel);
+  L.circle(HOTEL,{radius:800,color:tok('navy'),weight:1.2,fillColor:tok('navy'),fillOpacity:.05,dashArray:'5 4'}).addTo(groups.hotel);
 
   var openPanel=null,openHead=null;
   function collapse(){
@@ -695,9 +826,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   var map=L.map('map',{scrollWheelZoom:false}).setView([34.34,132.39],11);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19}).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/'+TILE+'/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19}).addTo(map);
   function pin(c){return L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:'+c+';border:2.5px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 1px 4px rgba(0,0,0,.35)"></div>',iconSize:[16,16],iconAnchor:[8,16],popupAnchor:[0,-16]});}
-  var CITY='#2b5f6e',MIYA='#d24b34',FERRY='#5dcaa5',FOOD='#b88a3e',CAFE='#7a5c9a';
+  var CITY=tok('cat-city'),MIYA=tok('cat-miya'),FERRY=tok('cat-ferry'),FOOD=tok('cat-food'),CAFE=tok('cat-cafe');
   var P=[
     // 관광지 · 히로시마 도심
     ["평화기념공원 · 원폭돔",34.395483,132.453592,CITY],
@@ -727,12 +858,12 @@
   var g=[];
   // 숙소 확정 · ORIGAMINN (가와라마치 · 도바시 정류장 앞) · 3박
   var HOTEL=[34.3887781,132.4449294];
-  L.circle(HOTEL,{radius:850,color:'#1c2431',weight:1.5,fillColor:'#1c2431',fillOpacity:.06,dashArray:'5 4'}).addTo(map);
-  var hIcon=L.divIcon({className:'',html:'<div style="width:30px;height:30px;background:#1c2431;border:2.5px solid #fff;border-radius:7px;box-shadow:0 2px 7px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center"><span style="color:#f0c86a;font-size:15px;line-height:1">\u2605</span></div>',iconSize:[30,30],iconAnchor:[15,15],popupAnchor:[0,-16]});
+  L.circle(HOTEL,{radius:850,color:tok('navy'),weight:1.5,fillColor:tok('navy'),fillOpacity:.06,dashArray:'5 4'}).addTo(map);
+  var hIcon=L.divIcon({className:'',html:'<div style="width:30px;height:30px;background:'+tok('navy')+';border:2.5px solid #fff;border-radius:3px;box-shadow:0 2px 7px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center"><span style="width:6px;height:6px;background:#fff;border-radius:1px;font-size:0;line-height:0">\u2605</span></div>',iconSize:[30,30],iconAnchor:[15,15],popupAnchor:[0,-16]});
   g.push(L.marker(HOTEL,{icon:hIcon,zIndexOffset:1000}).addTo(map).bindPopup('<b>ORIGAMINN · 숙소 확정 (3박)</b><br>13-14 Kawaramachi, Naka-ku<br>도바시(土橋) 정류장 앞 · 미야지마구치 직통<br>평화공원 도보 10분'));
   P.forEach(function(p){g.push(L.marker([p[1],p[2]],{icon:pin(p[3])}).addTo(map).bindPopup('<b>'+p[0]+'</b>'));});
   // 미야지마 당일치기 동선: 숙소(도바시) → 미야지마구치 → 도리이 (왕복)
-  L.polyline([HOTEL,[34.3113,132.3037],[34.2973,132.3181]],{color:'#e07a63',weight:2.5,opacity:.5,dashArray:'6 6'}).addTo(map);
+  L.polyline([HOTEL,[34.3113,132.3037],[34.2973,132.3181]],{color:tok('accent'),weight:2.5,opacity:.5,dashArray:'6 6'}).addTo(map);
   var MAIN_BOUNDS=L.featureGroup(g).getBounds().pad(0.16);
   var mainFitted=false;
   window.__fitMain=function(force){
