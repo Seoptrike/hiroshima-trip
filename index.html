@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>히로시마 3박 · 미야지마 당일치기 최종 일정</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  :root{
+    --sea:#2b5f6e; --sea-deep:#193c47;
+    --vermilion:#d24b34; --verm-soft:#e07a63;
+    --paper:#f4f0e8; --paper-warm:#efe8da;
+    --ink:#26302f; --gold:#b88a3e; --line:rgba(43,95,110,.16);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--paper);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px}
+  header{background:radial-gradient(130% 90% at 15% 0%, rgba(184,138,62,.16), transparent 55%),linear-gradient(165deg,var(--sea-deep),var(--sea) 78%);color:var(--paper);padding:68px 0 58px;position:relative;overflow:hidden}
+  header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:var(--vermilion)}
+  .kicker{font-family:'Shippori Mincho',serif;letter-spacing:.26em;font-size:13px;opacity:.85;margin-bottom:16px}
+  header h1{font-family:'Shippori Mincho',serif;font-weight:700;font-size:clamp(34px,6.5vw,58px);line-height:1.08;letter-spacing:.02em}
+  header h1 .jp{display:block;font-size:.44em;font-weight:500;letter-spacing:.28em;opacity:.72;margin-top:14px}
+  .meta{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:26px;font-size:13.5px}
+  .meta span{display:flex;align-items:center;gap:8px}
+  .meta b{color:var(--gold);font-weight:500}
+  .intro{padding:42px 0 4px}
+  .intro .lead{font-family:'Shippori Mincho',serif;font-size:19px;color:var(--sea);margin-bottom:12px;line-height:1.6}
+  .intro p{max-width:660px;color:#3a4b4a;font-weight:300}
+  .flow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:22px 0 2px;font-size:13px;color:var(--sea);font-weight:500}
+  .flow .node{background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 14px;text-align:center}
+  .flow .arr{color:var(--verm-soft);font-size:15px}
+  .flow small{color:#8a9998;font-weight:300;font-size:11px;display:block}
+  .baggage{margin-top:16px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;padding:12px 16px;font-size:13.5px;color:#42544f;font-weight:300}
+  .baggage b{color:var(--gold);font-weight:500}
+  .photonote{margin:18px 0 2px;background:#fff;border:1px dashed var(--verm-soft);border-radius:4px;padding:13px 16px;font-size:13px;color:#42544f;font-weight:300}
+  .photonote b{color:var(--vermilion);font-weight:500}
+  .mapbox{margin:20px 0 8px;border:1px solid var(--line);border-radius:2px;overflow:hidden;background:#fff}
+  #map{height:400px;width:100%}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;padding:11px 15px;background:var(--paper-warm);font-size:12.5px}
+  .legend b{display:inline-flex;align-items:center;gap:7px;font-weight:400}
+  .sw{width:12px;height:12px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+  .swh{width:14px;height:14px;border-radius:4px;background:#1c2431;display:inline-flex;align-items:center;justify-content:center;color:#f0c86a;font-size:9px;line-height:1}
+  .swh::before{content:"\2605"}
+  .day{padding:34px 0 8px;border-top:1px solid var(--line)}
+  .dayhead{display:flex;align-items:baseline;gap:16px;margin-bottom:3px}
+  .daynum{font-family:'Shippori Mincho',serif;font-size:13px;color:var(--vermilion);letter-spacing:.16em}
+  .day h2{font-family:'Shippori Mincho',serif;font-weight:700;font-size:clamp(23px,4.2vw,31px);color:var(--sea);letter-spacing:.01em}
+  .daysub{color:#6a7b7a;font-size:13px;margin:3px 0 8px;font-weight:300}
+  .sleep{display:inline-block;font-size:12px;background:var(--paper-warm);color:var(--gold);padding:3px 12px;border-radius:2px;margin:6px 0 20px;letter-spacing:.02em;font-weight:500}
+  .stop{display:grid;grid-template-columns:66px 1fr;gap:0 18px;padding-bottom:22px;position:relative}
+  .stop::before{content:"";position:absolute;left:13px;top:8px;bottom:-4px;width:1.5px;background:linear-gradient(var(--line),transparent)}
+  .stop:last-child::before{display:none}
+  .time{grid-row:span 3;position:relative}
+  .time .dot{position:absolute;left:7px;top:7px;width:13px;height:13px;border-radius:50%;background:var(--paper);border:2.5px solid var(--vermilion)}
+  .time .t{font-size:12.5px;color:var(--sea);font-weight:500;padding-left:30px;display:block}
+  .stop h3{font-size:16.5px;font-weight:500;margin-bottom:4px}
+  .stop h3 .jp{font-size:12px;color:#93a2a1;font-weight:300;margin-left:6px}
+  .stop p{font-size:14px;color:#42544f;font-weight:300;max-width:600px}
+  .stop .zen{border-left:2px solid var(--verm-soft);padding-left:10px;margin-top:8px;font-size:13px;color:var(--sea);font-style:italic}
+  .tag{display:inline-block;font-size:11px;background:rgba(43,95,110,.09);color:var(--sea);padding:2px 8px;border-radius:2px;margin:8px 6px 0 0}
+  .tag.eat{background:#f0e3cd;color:#8a601c}
+  .tag.spa{background:#e6ded0;color:var(--gold)}
+  .tag.zen{background:#e0e6e5;color:var(--sea)}
+  /* photo frame */
+  .photo{margin-top:14px;max-width:440px}
+  .photo .frame{position:relative;width:100%;aspect-ratio:3/2;background:linear-gradient(135deg,var(--paper-warm),#e6ddcb);border:1px solid var(--line);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .photo .frame img{width:100%;height:100%;object-fit:cover;display:block}
+  .photo .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;color:#9a8b6a}
+  .photo .ph .ic{font-size:26px;margin-bottom:6px;opacity:.6}
+  .photo .ph .kw{font-size:12px;color:#8a7a5a;margin-top:6px;line-height:1.5}
+  .photo .ph .kw code{background:rgba(184,138,62,.14);padding:1px 6px;border-radius:3px;font-size:11px;color:#7a5c1a}
+  .photo figcaption{font-size:11.5px;color:#8a9998;margin-top:6px;font-weight:300;display:flex;justify-content:space-between;gap:8px}
+  .photo figcaption a{color:var(--sea);text-decoration:none;border-bottom:1px dotted var(--sea)}
+  .hotels{padding:40px 0 4px;border-top:1px solid var(--line)}
+  .hotels h2{font-family:'Shippori Mincho',serif;font-size:26px;color:var(--sea);margin-bottom:6px}
+  .hotels .sub{color:#6a7b7a;font-size:13.5px;margin-bottom:22px;font-weight:300}
+  .hgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .hcard{background:#fff;border:1px solid var(--line);border-radius:3px;padding:16px 17px;position:relative}
+  .hcard.pick{border:1.5px solid var(--vermilion)}
+  .hcard .badge{display:inline-block;font-size:10.5px;background:var(--vermilion);color:#fff;padding:2px 8px;border-radius:2px;margin-bottom:8px;letter-spacing:.04em}
+  .hcard .badge.alt{background:var(--paper-warm);color:var(--gold)}
+  .hcard h3{font-size:15.5px;font-weight:500;margin-bottom:2px}
+  .hcard .rate{font-size:12px;color:var(--gold);font-weight:500;margin-bottom:7px}
+  .hcard p{font-size:13px;color:#42544f;font-weight:300}
+  .htag{display:inline-block;font-size:11px;background:rgba(43,95,110,.08);color:var(--sea);padding:2px 8px;border-radius:2px;margin:7px 5px 0 0}
+  .food{padding:40px 0 4px;border-top:1px solid var(--line)}
+  .food h2{font-family:'Shippori Mincho',serif;font-size:26px;color:var(--sea);margin-bottom:6px}
+  .food .sub{color:#6a7b7a;font-size:13.5px;margin-bottom:8px;font-weight:300}
+  .food .sub b{color:var(--vermilion);font-weight:500}
+  .fcat{margin:26px 0 10px;display:flex;align-items:baseline;gap:10px}
+  .fcat .cn{font-family:'Shippori Mincho',serif;font-size:12px;letter-spacing:.12em;color:var(--vermilion);border:1px solid var(--verm-soft);border-radius:20px;padding:3px 11px;flex:none}
+  .fcat h3{font-family:'Shippori Mincho',serif;font-size:18px;color:var(--sea)}
+  .fcat p{font-size:12.5px;color:#8a9998;font-weight:300}
+  .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:13px}
+  .fcard{background:#fff;border:1px solid var(--line);border-radius:3px;padding:15px 16px;position:relative}
+  .fcard.local{border-left:3px solid var(--vermilion)}
+  .fcard.must{border-left:3px solid var(--gold)}
+  .fcard .fh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:3px}
+  .fcard h4{font-size:15px;font-weight:500}
+  .fcard h4 .jp{font-size:11px;color:#9aa8aa;font-weight:300;margin-left:4px}
+  .fcard .rate{font-size:11.5px;color:var(--gold);font-weight:500;flex:none}
+  .fcard p{font-size:13px;color:#42544f;font-weight:300;margin-top:5px}
+  .fcard .loc{font-size:11.5px;color:var(--sea);margin-top:8px;font-weight:400}
+  .fcard .loc::before{content:"\1F4CD";margin-right:4px;font-size:10px}
+  .ftag{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:2px;margin:8px 5px 0 0;font-weight:400}
+  .ftag.g{background:#f0e3cd;color:#8a601c}
+  .ftag.v{background:rgba(210,75,52,.1);color:var(--vermilion)}
+  .flegend{display:flex;gap:16px;margin:14px 0 4px;font-size:12px;color:#6a7b7a;font-weight:300;flex-wrap:wrap}
+  .flegend b{display:inline-flex;align-items:center;gap:6px;font-weight:400}
+  .flegend .bar{width:3px;height:13px;border-radius:2px;display:inline-block}
+  .tips{margin:44px 0 40px;background:var(--sea-deep);color:var(--paper);padding:36px 32px;border-radius:2px;position:relative;overflow:hidden}
+  .tips::before{content:"";position:absolute;right:-30px;bottom:-30px;width:150px;height:150px;border-radius:50%;background:radial-gradient(var(--vermilion),transparent 70%);opacity:.22}
+  .tips h2{font-family:'Shippori Mincho',serif;font-size:23px;margin-bottom:18px;position:relative}
+  .tips ul{list-style:none;display:grid;gap:13px;position:relative}
+  .tips li{display:grid;grid-template-columns:22px 1fr;gap:11px;font-size:14px;font-weight:300;color:#d3dedd}
+  .tips li b{color:var(--gold);font-weight:500}
+  .tips li .n{font-family:'Shippori Mincho',serif;color:var(--verm-soft)}
+  .tide{margin:28px 0 0;background:#fff;border:1px solid var(--line);border-radius:3px;padding:20px 22px}
+  .tide h3{font-family:'Shippori Mincho',serif;font-size:18px;color:var(--sea);margin-bottom:12px}
+  .tide .row{display:flex;gap:14px;align-items:flex-start;font-size:13.5px;color:#42544f;font-weight:300;padding:7px 0;border-top:1px solid var(--line)}
+  .tide .row:first-of-type{border-top:none}
+  .tide .lvl{font-family:'Shippori Mincho',serif;color:var(--vermilion);font-size:15px;min-width:74px;font-weight:600}
+  footer{padding:22px 0 40px;text-align:center;color:#8a9998;font-size:12px}
+
+
+  .maptools{display:flex;justify-content:flex-end;margin:0 0 6px}
+  .mapreset{font:inherit;font-family:'Noto Sans KR',sans-serif;font-size:11.5px;font-weight:400;color:#6a7b7a;background:#fff;border:1px solid var(--line);border-radius:20px;padding:5px 12px;cursor:pointer;transition:.15s}
+  .mapreset:hover{color:var(--sea);border-color:var(--sea)}
+  .mapreset:focus-visible{outline:2px solid var(--sea);outline-offset:2px}
+  /* ---- 요일 가능 여부 ---- */
+  .dayfit{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:4px;padding:18px 20px}
+  .dayfit-h{font-size:14px;color:var(--ink);margin-bottom:14px;font-weight:300}
+  .dayfit-h b{font-weight:500;color:var(--sea)}
+  .dfrow{display:grid;grid-template-columns:132px 1fr;gap:0 16px;padding:13px 0;border-top:1px solid var(--line)}
+  .dfrow:first-of-type{border-top:none;padding-top:2px}
+  .dfk{font-size:12.5px;font-weight:500;line-height:1.5;align-self:start}
+  .dfk .ic{font-size:12px;margin-right:5px}
+  .dfk small{display:block;font-size:10.5px;font-weight:300;color:#93a2a1;padding-left:18px;margin-top:2px}
+  .dfrow.bad .dfk{color:#a33a28}
+  .dfrow.warn .dfk{color:#96701f}
+  .dfrow.ok .dfk{color:#2c6b52}
+  .dfrow ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+  .dfrow li{display:flex;gap:10px;align-items:baseline;font-size:13px;line-height:1.5;flex-wrap:wrap}
+  .dfrow li b{font-weight:500;color:var(--ink);flex:none}
+  .dfrow li span{font-size:11.5px;color:#7b8a89;font-weight:300}
+  .dfrow.bad li b{text-decoration:line-through;text-decoration-color:rgba(163,58,40,.45);color:#8a9998}
+  .dayfit-f{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:#6a7b7a;font-weight:300;line-height:1.6}
+  .dayfit-f b{color:#2c6b52;font-weight:500}
+  @media(max-width:620px){
+    .dfrow{grid-template-columns:1fr;gap:8px}
+    .dfk{padding-bottom:2px}
+    .dfk small{display:inline;padding-left:5px;margin-top:0}
+  }
+  /* ---- 탭 내비게이션 ---- */
+  .tabnav{position:sticky;top:0;z-index:900;background:rgba(244,240,232,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);box-shadow:0 1px 10px rgba(25,60,71,.05)}
+  .tabnav .wrap{display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 22px}
+  .tabnav .wrap::-webkit-scrollbar{display:none}
+  .tb{font:inherit;font-family:'Noto Sans KR',sans-serif;font-size:13.5px;font-weight:500;color:#7b8a89;background:transparent;border:0;cursor:pointer;padding:15px 14px 12px;white-space:nowrap;position:relative;transition:color .15s}
+  .tb::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2.5px;background:var(--vermilion);transform:scaleX(0);transform-origin:center;transition:transform .2s}
+  .tb:hover{color:var(--sea)}
+  .tb[aria-current="true"]{color:var(--sea-deep);font-weight:700}
+  .tb[aria-current="true"]::after{transform:scaleX(1)}
+  .tb:focus-visible{outline:2px solid var(--sea);outline-offset:-4px;border-radius:3px}
+  .pane{display:none}
+  .pane.is-on{display:block;animation:paneIn .22s ease}
+  @keyframes paneIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .pane > section:first-child{border-top:none}
+  .pane > section:first-child.day,.pane > section:first-child .day:first-child{border-top:none}
+  @media(prefers-reduced-motion:reduce){.pane.is-on{animation:none}.tb::after{transition:none}}
+  @media(max-width:560px){.stop{grid-template-columns:54px 1fr;gap:0 12px}.time .t{padding-left:24px;font-size:11.5px}.time .dot{left:5px}.stop::before{left:11px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kicker">HIROSHIMA · MIYAJIMA · 3N4D</div>
+    <h1>히로시마 · 미야지마<span class="jp">広島 三泊 · 宮島 日帰り</span></h1>
+    <div class="meta">
+      <span>📅 <b>9/10(목)~13(일)</b> · 3박 4일</span>
+      <span>✈️ 인천-히로시마 직항 1시간 55분</span>
+      <span>🏨 <b>ORIGAMINN</b> 3박 고정</span>
+      <span>⛩️ 물멍 · 낮+밤 도리이</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabnav" id="tabnav">
+  <div class="wrap">
+    <button class="tb" data-pane="overview" aria-current="true">개요 · 지도</button>
+    <button class="tb" data-pane="plan">일정 4일</button>
+    <button class="tb" data-pane="eat">맛집 40곳</button>
+    <button class="tb" data-pane="stay">숙소 · 메모</button>
+  </div>
+</nav>
+
+<div class="pane is-on" id="pane-overview">
+<section class="wrap intro">
+  <p class="lead">ORIGAMINN 한 곳에 3박 고정. 미야지마는 아침부터 밤까지 당일치기로.</p>
+  <p>섬 숙소가 비싸서 <b>미야지마는 당일치기</b>로 바꿨어. 대신 하루를 통째로 섬에 쓰는 방식 — 아침에 들어가서 밤 도리이 조명까지 보고 늦은 페리로 나와. 섬에 12시간 있으면 <b>만조·간조가 한 번씩 돌아오니까</b> 물 위에 뜬 도리이와 걸어서 다가가는 도리이를 하루에 다 볼 수 있어. 1박했을 때 얻는 건 '아침 도리이' 하나뿐인데, 그건 숙박비 차액을 쓸 만큼은 아니야.</p>
+
+  <div class="flow">
+    <span class="node">ORIGAMINN<small>1일차 · 체크인</small></span>
+    <span class="arr">→</span>
+    <span class="node">미야지마 당일치기<small>2일차 · 아침~밤</small></span>
+    <span class="arr">→</span>
+    <span class="node">히로시마 시내<small>3일차 · 도심</small></span>
+    <span class="arr">→</span>
+    <span class="node">귀국<small>4일차</small></span>
+  </div>
+
+  <div class="baggage">🧳 <b>짐·이동 요령</b> — 3박 내내 같은 방이라 <b>짐을 아예 안 옮겨.</b> 체크인·체크아웃도 한 번씩. 미야지마엔 작은 가방 하나만. 숙소가 <b>도바시(土橋) 전차 정류장 앞</b>이라 히로덴 2호선을 타면 <b>갈아타지 않고 히로덴 미야지마구치까지 직통</b> — 당일치기 동선에 이보다 좋은 위치가 없어.</div>
+
+  <div class="photonote">📷 <b>사진 넣는 법</b> — 각 관광지 아래에 사진 자리가 있어. 캡션의 “Wikimedia” 링크를 눌러 → 원본 이미지에서 우클릭 “이미지 주소 복사” → 이 파일의 해당 <code>&lt;img src="여기"&gt;</code>에 붙여넣으면 사진이 바로 떠. (upload.wikimedia.org로 끝나는 직링크여야 함)</div>
+
+  <div class="maptools"><button type="button" class="mapreset" id="map-reset">⤢ 전체 보기</button></div>
+  <div class="mapbox">
+    <div id="map"></div>
+    <div class="legend">
+      <b><span class="sw" style="background:#2b5f6e"></span>관광 · 도심</b>
+      <b><span class="sw" style="background:#d24b34"></span>관광 · 미야지마</b>
+      <b><span class="sw" style="background:#5dcaa5"></span>페리 선착장</b>
+      <b><span class="sw" style="background:#b88a3e"></span>먹거리 맛집</b>
+      <b><span class="sw" style="background:#7a5c9a"></span>카페</b>
+      <b><span class="swh"></span>ORIGAMINN (숙소 확정)</b>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="pane" id="pane-plan">
+<section class="wrap">
+  <div class="day">
+    <div class="dayhead"><span class="daynum">DAY 1 · 목</span><h2>도착 · 평화공원</h2></div>
+    <p class="daysub">오전 도착 → 도심 코어</p>
+    <div class="sleep">🛏 ORIGAMINN · 가와라마치 (1박째 · 3박 모두 동일)</div>
+    <div class="stop"><div class="time"><span class="dot"></span><span class="t">09:35</span></div><div><h3>히로시마 공항 도착 → ORIGAMINN</h3><p>인천 07:40 → 히로시마 09:35(제주항공 직항). 리무진버스로 히로시마역까지 약 45분 → 히로덴 노면전차로 도바시(土橋). 체크인이 셀프라 시간 자유롭고, 이른 도착이면 짐만 두고 바로 나가면 돼.</p><span class="tag">셀프 체크인</span><span class="tag">전차 정류장 앞</span></div></div>
+    <div class="stop"><div class="time"><span class="dot"></span><span class="t">오후</span></div><div><h3>평화기념공원 · 원폭돔<span class="jp">平和記念公園</span></h3><p>세계유산 원폭돔·평화기념자료관. 히로시마의 핵심. 공원과 강변 산책도 좋아. 평점 4.7.</p><span class="tag">세계유산</span>
+      <figure class="photo"><div class="frame"><img alt="원폭돔" src="https://commons.wikimedia.org/wiki/Special:FilePath/Atomic_Bomb_Dome%2C_Hiroshima%2C_South_view_20190417_1.jpg?width=600"><div class="ph"><div class="ic">⛩</div><div>원폭돔 · 평화공원</div><div class="kw">검색어 <code>Atomic Bomb Dome Hiroshima</code></div></div></div><figcaption><span>히로시마 원폭돔</span><a href="https://commons.wikimedia.org/wiki/Category:Hiroshima_Peace_Memorial_(Genbaku_Dome)" target="_blank">Wikimedia에서 사진 찾기</a></figcaption></figure>
+    </div></div>
+    <div class="stop"><div class="time"><span class="dot"></span><span class="t">점심</span></div><div><h3>元祖八昌 (간소 핫쇼)<span class="jp">10:30~13:30</span></h3><p>평화공원 가는 길에 끼우기. <b>10:30~13:30만 열고 일요일 휴무</b>라 이번 일정에선 목요일이 사실상 유일한 기회. 여사장 두 분이 큰 철판 하나로 굽는 정통 스타일. 현금만.</p><span class="tag eat">오코노미야키</span><span class="tag">타베로그 3.71</span></div></div>
+    <div class="stop"><div class="time"><span class="dot"></span><span class="t">저녁</span></div><div><h3>ロペズ (로페즈)<span class="jp">16:30~23:00 · 목요일이 유일</span></h3><p>타베로그·구글 <b>양쪽 랭킹에 동시 진입한 유일한 집</b>. 히로시마 오코노미야키에 할라피뇨를 처음 넣은 곳 — 기름진 맛을 끊어줘. <b>토·일 휴무 + 금요일은 미야지마</b>라서 목요일 저녁에 박아야 함. 17시 전 도착 권장(종이에 이름 적는 대기).</p><span class="tag eat">오코노미야키</span><span class="tag">양쪽 랭킹 진입</span>
+      <figure class="photo"><div class="frame"><img alt="오코노미야키" src="https://commons.wikimedia.org/wiki/Special:FilePath/Hiroshimayaki%28Okonomiyaki%29.jpg?width=600"><div class="ph"><div class="ic">🍽</div><div>히로시마 오코노미야키</div><div class="kw">검색어 <code>Hiroshima okonomiyaki</code></div></div></div><figcaption><span>히로시마 오코노미야키</span><a href="https://commons.wikimedia.org/wiki/Category:Okonomiyaki" target="_blank">Wikimedia에서 사진 찾기</a></figcaption></figure>
+    </div></div>
+  </div>
+
+  <div class="day">
+    <div class="dayhead"><span class="daynum">DAY 2 · 금</span><h2>미야지마 당일치기</h2></div>
+    <p class="daysub">아침에 들어가 밤 도리이까지 · 섬에서 약 12시간</p>
+    <div class="sleep">🛏 ORIGAMINN (2박째 · 같은 방 그대로)</div>
+    <div class="stop"><div class="time"><span class="dot"></span><span class="t">08:00</span></div><div><h3>도바시 → 히로덴 미야지마구치<span class="jp">広電2号線 直通</span></h3><p>숙소 앞 도바시 정류장에서 <b>히로덴 2호선 직통</b>으로 약 60분(환승 없음, 편도 ¥340). JR로 가면 더 빠르지만(히로시마역 경유 30분) 숙소 위치상 직통이 편해. 미야지마구치에서 페리 10분.</p><span class="tag">환승 없음</span><span class="tag">페리 10분</span>
+      <figure class="photo"><div class="frame"><img alt="미야지마 사슴" src="https://commons.wikimedia.org/wiki/Special:FilePath/Wild_deer_on_the_island_of_Miyajima_%2853620865606%29.jpg?width=600"><div class="ph"><div class="ic">🦌</div><div>미야지마 사슴과 섬</div><div class="kw">검색어 <code>Miyajima deer</code></div></div></div><figcaption><span>미야지마 섬·사슴</span><a href="https://commons.wikimedia.org/wiki/Category:Deer_in_Miyajima" target="_blank">Wikimedia에서 사진 찾기</a></figcaption></figure>
+    </div></div>
+    <div class="stop"><div class="time"><span class="dot"></span><span class="t">오전~낮</span></div><div><h3>이쓰쿠시마 신사 · 오도리이<span class="jp">厳島神社 · ~18:00 마감</span></h3><p>바다 위 주홍 도리이. <b>신사 내부 입장은 18시에 닫히니 이건 낮에 먼저 처리</b>해야 해(도리이 자체는 해안에서 밤에도 보임). 만조엔 물에 뜨고 간조엔 걸어서 접근 — 하루 종일 있으면 둘 다 걸려.</p><p class="zen">물멍 ① — 낮 도리이. 만조·간조 각각 다른 얼굴</p><span class="tag">세계유산</span><span class="tag zen">물멍</span>
+      <figure class="photo"><div class="frame"><img alt="이쓰쿠시마 도리이" src="https://commons.wikimedia.org/wiki/Special:FilePath/Itsukushima_Floating_Torii_Gate%2C_East_view_20190417_1.jpg?width=600"><div class="ph"><div class="ic">⛩</div><div>바다 위 도리이</div><div class="kw">검색어 <code>Itsukushima floating torii</code></div></div></div><figcaption><span>이쓰쿠시마 오도리이</span><a href="https://commons.wikimedia.org/wiki/Category:Itsukushima-jinja_torii" target="_blank">Wikimedia에서 사진 찾기</a></figcaption></figure>
+    </div></div>
+    <div class="stop"><div class="time"><span class="dot"></span><span class="t">오후</span></div><div><h3>미센산 로프웨이<span class="jp">弥山 · 하행 최종 17시경</span></h3><p>정상 전망대에서 세토내해 섬들 파노라마. <b>로프웨이 막차가 대략 17시(계절·날씨에 따라 변동)</b>라 밤 도리이를 노린다면 이걸 반드시 오후에 끝내야 해 — 순서 뒤집으면 산에 못 올라가. 내려와서 아나고메시(붕장어밥)·굴꼬치·모미지만주로 늦은 점심.</p><p class="zen">물멍 ② — 섬 위에서 내려다보는 잔잔한 내해</p><span class="tag eat">아나고메시</span><span class="tag eat">굴꼬치</span>
+      <figure class="photo"><div class="frame"><img alt="미센산 전망" src="https://commons.wikimedia.org/wiki/Special:FilePath/Miyajima-from-misen-san.jpg?width=600"><div class="ph"><div class="ic">⛰</div><div>미센산 세토내해 전망</div><div class="kw">검색어 <code>Mount Misen Miyajima view</code></div></div></div><figcaption><span>미센산 전망대</span><a href="https://commons.wikimedia.org/wiki/Category:Mount_Misen" target="_blank">Wikimedia에서 사진 찾기</a></figcaption></figure>
+    </div></div>
+    <div class="stop"><div class="time"><span class="dot"></span><span class="t">저녁·밤</span></div><div><h3>조명 켜진 도리이 → 늦은 페리<span class="jp">夜の大鳥居</span></h3><p><b>당일치기의 핵심이 이 시간대야.</b> 당일 관광객이 다 빠진 뒤 조명이 켜진 도리이(일몰~23시경)를 인적 없는 해변에서 봄. 이걸 보고 나서 늦은 페리로 나오면 섬 1박의 대부분을 회수하는 셈.</p><p class="zen">물멍 ③ — 밤 도리이. 낮과 완전히 다른 얼굴</p><div class="baggage" style="margin-top:10px">⚠️ <b>막차가 이 계획의 급소</b> — 미야지마발 페리 최종편은 대략 <b>22시 전후</b>, 히로덴 미야지마구치발 막차도 23시 전후로 알고 있는데 <b>시즌마다 바뀌어서 반드시 현지 시간표로 확인</b>하고 여유 1편 앞으로 잡아. 놓치면 섬에서 나올 방법이 없어(택시도 못 건너옴). 조명 조금 덜 보더라도 한 편 먼저 타는 게 맞아.</div><span class="tag">막차 확인 필수</span>
+      <figure class="photo"><div class="frame"><img alt="밤 도리이" src="https://commons.wikimedia.org/wiki/Special:FilePath/Itsukushima_torii_distance.jpg?width=600"><div class="ph"><div class="ic">🌙</div><div>밤에 조명 켜진 도리이</div><div class="kw">검색어 <code>Itsukushima torii night illuminated</code></div></div></div><figcaption><span>미야지마 밤 도리이</span><a href="https://commons.wikimedia.org/wiki/Category:Itsukushima-jinja_torii_at_night" target="_blank">Wikimedia에서 사진 찾기</a></figcaption></figure>
+    </div></div>
+  </div>
+
+  <div class="day">
+    <div class="dayhead"><span class="daynum">DAY 3 · 토</span><h2>히로시마 도심</h2></div>
+    <p class="daysub">전날 밤이 늦으니 느긋하게 시작 · 토요일만 되는 집들 소화</p>
+    <div class="sleep">🛏 ORIGAMINN (3박째 · 같은 방 그대로)</div>
+    <div class="stop"><div class="time"><span class="dot"></span><span class="t">늦은 아침</span></div><div><h3>寺西コーヒー (테라니시 커피)<span class="jp">8:00~18:30 · 일요일 휴무</span></h3><p>49년 된 목재 앤티크 킷사텐. 구글 4.8. <b>일요일 휴무라 토요일이 마지막 기회</b>(귀국일엔 못 감). 토스트+오믈렛 세트가 양도 후해. 점심엔 줄 서니 늦은 아침이 낫고, 숙소에서 남쪽으로 가까워.</p><span class="tag eat">킷사텐 조식</span><span class="tag">구글 4.8</span>
+      <figure class="photo"><div class="frame"><img alt="아침 도리이" src="https://commons.wikimedia.org/wiki/Special:FilePath/Torii_and_Itsukushima_Shrine.jpg?width=600"><div class="ph"><div class="ic">🌅</div><div>아침 빛의 도리이</div><div class="kw">검색어 <code>Itsukushima torii morning low tide</code></div></div></div><figcaption><span>미야지마 아침 도리이</span><a href="https://commons.wikimedia.org/wiki/Category:Itsukushima-jinja_torii" target="_blank">Wikimedia에서 사진 찾기</a></figcaption></figure>
+    </div></div>
+    <div class="stop"><div class="time"><span class="dot"></span><span class="t">낮</span></div><div><h3>히로시마성 · 혼도리 상점가<span class="jp">広島城</span></h3><p>전날 섬에서 12시간을 썼으니 이 날은 밀도를 낮춰도 돼. 히로시마성 → 혼도리 상점가 쇼핑·기념품. 짐 옮길 일이 없어서 오전이 통째로 자유로워.</p><span class="tag">여유 일정</span></div></div>
+    <div class="stop"><div class="time"><span class="dot"></span><span class="t">오후·저녁</span></div><div><h3>슛케이엔 정원 → 굴 or 오코노미야키<span class="jp">縮景園</span></h3><p>도심 회유식 정원에서 물멍 한 번 더. 저녁은 <b>토요일에만 열리는 두 곳</b> 중 하나로. ① <b>広島牡蠣処 バケツ 紙屋町</b>(구글 4.8, 17시~, 수·목·금 휴무) — 굴 코스. ② <b>Smile 오코노미야키</b>(구글 4.7, 주말만 영업) — 히로시마식·오사카식 비교 가능. 둘 다 토요일 아니면 이번 일정에 못 넣어.</p><p class="zen">물멍 ④ — 정원 수면. 섬 대신 도심에서 잔잔하게</p><span class="tag zen">정원 물멍</span><span class="tag eat">히로시마 굴</span><span class="tag">토요일만</span>
+      <figure class="photo"><div class="frame"><img alt="슛케이엔 정원" src="https://commons.wikimedia.org/wiki/Special:FilePath/Hiroshima_Shukkei-en_Pond.jpg?width=600"><div class="ph"><div class="ic">🍃</div><div>슛케이엔 회유식 정원</div><div class="kw">검색어 <code>Shukkeien garden Hiroshima</code></div></div></div><figcaption><span>슛케이엔 정원</span><a href="https://commons.wikimedia.org/wiki/Category:Shukkeien" target="_blank">Wikimedia에서 사진 찾기</a></figcaption></figure>
+    </div></div>
+  </div>
+
+  <div class="day">
+    <div class="dayhead"><span class="daynum">DAY 4 · 일</span><h2>귀국</h2></div>
+    <p class="daysub">마지막 오전 · 출국</p>
+    <div class="stop"><div class="time"><span class="dot"></span><span class="t">오전</span></div><div><h3>마지막 한 끼 · 공항 이동</h3><p><b>일요일은 휴무가 가장 많은 날</b> — 테라니시·一平や·福福寿司·ロペズ·ピッツァジューシー·重富 본점이 전부 닫아. 아직 여는 곳은 <b>八昌</b>(일요일 10시~17시), <b>Marifu Coffee</b>(8시~), <b>ビールスタンド重富 ekie</b>(히로시마역 10시~) 정도. 오전 비행기면 Marifu 조식만, 오후 편이면 八昌까지 가능.</p><p>체크아웃 후에도 짐만 두고 움직일 수 있는지 숙소에 미리 확인. 리무진버스로 히로시마 공항.</p><span class="tag">일요일 휴무 주의</span></div></div>
+  </div>
+</section>
+<section class="wrap">
+  <div class="tide">
+    <h3>미야지마 도리이 · 조수 읽는 법</h3>
+    <div class="row"><span class="lvl">만조<br>250cm+</span><div>도리이가 <b>물 위에 뜬</b> 상태. 신사 마루 아래로 물이 찰랑. 가장 상징적인 '떠 있는 도리이' 사진은 이때.</div></div>
+    <div class="row"><span class="lvl">간조<br>100cm-</span><div>도리이 <b>바로 아래까지 걸어서</b> 접근 가능. 기둥의 규모·조각을 가까이 볼 수 있어. 사슴과 갯벌 산책.</div></div>
+    <div class="row"><span class="lvl">당일치기<br>전략</span><div>만조·간조는 하루 두 번, <b>약 6시간 간격</b>으로 번갈아 와. 그래서 <b>08시~22시로 길게 잡으면 당일치기로도 두 얼굴 다 걸려</b> — 섬에서 자야만 볼 수 있는 건 사실상 '아침 도리이' 하나뿐이야. 이게 당일치기로 바꿔도 손실이 적은 이유.</div></div>
+    <div class="row"><span class="lvl">순서<br>짜는 법</span><div>출발 2~3주 전 9/11 조수표를 확인해서 <b>만조 시각을 축으로 하루를 배치</b>해. 만조가 오전이면 → 도착 직후 물 위 도리이 → 오후에 미센산 → 저녁 간조에 걸어서 도리이 밑까지 → 밤 조명. 만조가 오후면 → 오전에 신사 내부(18시 마감)와 미센산 먼저 → 오후 만조 → 밤 조명. 어느 쪽이든 <b>미센산은 로프웨이 막차(17시경) 전에 끝내는 게 고정 제약</b>.</div></div>
+  </div>
+</section>
+</div>
+
+<div class="pane" id="pane-eat">
+<section class="wrap food">
+  <h2>히로시마 먹거리</h2>
+  <p class="sub">관광 명물 <b>+</b> 히로시마 사람들이 실제로 먹는 로컬 맛집까지. 도심 밤 동선은 나가레카와·핫초보리에 몰려 있어 골목 순회가 쉬워.</p>
+  <div class="flegend">
+    <b><span class="bar" style="background:var(--gold)"></span>꼭 먹어야 하는 명물</b>
+    <b><span class="bar" style="background:var(--vermilion)"></span>로컬 실전 맛집</b>
+    <span>· 평점은 구글/타베로그 기준 · 현금만인 곳 많음</span>
+  </div>
+
+  <div class="fcat"><span class="cn">명물</span><h3>안 먹으면 후회</h3><p>히로시마 = 이 세 가지</p></div>
+  <div class="fgrid">
+    <div class="fcard must">
+      <div class="fh"><h4>히로시마식 오코노미야키</h4></div>
+      <p>양배추 산더미 + 소바면을 층층이 쌓는 방식. 오사카식과 완전히 달라. 도심 낮/저녁 동선에.</p>
+      <span class="ftag v">레몬사와 곁들이기</span>
+    </div>
+    <div class="fcard must">
+      <div class="fh"><h4>미야지마 굴 <span class="jp">牡蠣</span></h4></div>
+      <p>일본 굴 생산 1위. 구운 굴·튀김·굴밥. 상점가 갓 구운 굴꼬치는 섬 시그니처.</p>
+    </div>
+    <div class="fcard must">
+      <div class="fh"><h4>아나고메시 <span class="jp">穴子飯</span></h4></div>
+      <p>미야지마 명물 붕장어 덮밥. 장어보다 담백·고소. 섬에서 점심으로.</p>
+    </div>
+  </div>
+
+  <div class="fcat"><span class="cn">추천</span><h3>명물 맛집</h3><p>타베로그 백명점·미슐랭 라인</p></div>
+  <div class="fgrid">
+    <div class="fcard must">
+      <div class="fh"><h4>나가타야 <span class="jp">お好み焼き</span></h4><span class="rate">★ 4.4</span></div>
+      <p>오코노미야키 백명점. 평화공원 바로 옆, 혼도리 입구. 미야지마 페리 방향이라 동선 최고. 대기 20~40분.</p>
+      <span class="ftag v">비건·노포크 메뉴</span>
+      <div class="loc">평화공원 · 혼도리 입구</div>
+    </div>
+    <div class="fcard must">
+      <div class="fh"><h4>핫쇼 <span class="jp">八昌 계열</span></h4><span class="rate">★ 4.2</span></div>
+      <p>현지인이 데려가는 오코노미야키 백명점. 소바/우동 선택. 점심만 운영(~17시).</p>
+      <div class="loc">노보리초</div>
+    </div>
+    <div class="fcard must">
+      <div class="fh"><h4>카키야 <span class="jp">牡蠣屋</span></h4><span class="rate">★ 4.5</span></div>
+      <p>미야지마 굴 전문, 미슐랭 빕구르망. 구운 굴·튀김·굴밥·생굴 다 나오는 카키야 세트(2,600~2,900엔).</p>
+      <span class="ftag g">미야지마 점심</span>
+      <div class="loc">미야지마 오모테산도</div>
+    </div>
+  </div>
+
+  <div class="fcat"><span class="cn">로컬</span><h3>히로시마 사람들의 진짜 맛집</h3><p>관광객은 잘 모르는 소울푸드</p></div>
+  <div class="fgrid">
+    <div class="fcard local">
+      <div class="fh"><h4>쿠니마츠 <span class="jp">汁なし担々麺</span></h4><span class="rate">★ 3.8</span></div>
+      <p>히로시마 진짜 소울푸드 <b>시루나시 탄탄멘</b>(국물 없는 탄탄면)의 원조격. 20번 비벼 먹는 게 룰. 매운맛 단계 선택, 자판기 식권. 나가레카와점은 새벽 3시까지 = 야식 완벽.</p>
+      <span class="ftag v">현금만</span>
+      <div class="loc">나가레카와 (도심 밤)</div>
+    </div>
+    <div class="fcard local">
+      <div class="fh"><h4>옷쿤도 마제멘 <span class="jp">まぜ麺</span></h4><span class="rate">★ 4.6</span></div>
+      <p>국물 없는 라멘(마제멘). 면 굵기·온도·매운맛 커스텀. 굴튀김도 판매. 평화공원 근처, 여행객이 "일본 최고 식사 중 하나"로 꼽는 곳.</p>
+      <div class="loc">오테마치 · 평화공원 인근</div>
+    </div>
+    <div class="fcard local">
+      <div class="fh"><h4>라멘 요키 <span class="jp">中華そば</span></h4><span class="rate">★ 4.4</span></div>
+      <p>60년 넘은 히로시마 라멘 노포. 돼지뼈 간장, 한 그릇 750엔. 관광지에서 떨어진 진짜 동네 라멘집.</p>
+      <span class="ftag v">일요일 휴무</span>
+      <div class="loc">에바미나미</div>
+    </div>
+    <div class="fcard local">
+      <div class="fh"><h4>츠루 스시 <span class="jp">寿司</span></h4><span class="rate">★ 4.6</span></div>
+      <p>노부부가 카운터에서 쥐어주는 오마카세(3,500~5,500엔). 쇼와 감성 그대로인 숨은 명소. 저녁만, 현금만.</p>
+      <span class="ftag v">월·일 휴무</span>
+      <div class="loc">나가레카와</div>
+    </div>
+    <div class="fcard local">
+      <div class="fh"><h4>바쿠단야 <span class="jp">広島つけ麺</span></h4><span class="rate">★ 3.6</span></div>
+      <p>차가운 면을 맵고 새콤한 국물에 찍어 먹는 히로시마 츠케멘. 매운맛 레벨 선택(처음이면 2~5). 오코노미무라 근처.</p>
+      <div class="loc">신텐치</div>
+    </div>
+  </div>
+
+  <div class="fcat"><span class="cn">카페</span><h3>커피 한 잔</h3><p>타베로그 카페 상위</p></div>
+  <div class="fgrid">
+    <div class="fcard local">
+      <div class="fh"><h4>오브스큐라 커피 <span class="jp">Obscura</span></h4><span class="rate">★ 4.4</span></div>
+      <p>혼도리 근처 스페셜티 커피 로스터리. 세계 각지 원두 직접 로스팅. 히로시마 도심 카페 1순위. 드립백 기념품도 판매.</p>
+      <div class="loc">후쿠로마치 · 도심</div>
+    </div>
+    <div class="fcard local">
+      <div class="fh"><h4>미야지마 커피 <span class="jp">宮島珈琲</span></h4><span class="rate">★ 4.3</span></div>
+      <p>미야지마 상점가 아담한 카페. 핸드드립·라테, 미야지마 커피 소프트크림·아포가토. 섬 관광 중 쉬어가기 좋음.</p>
+      <div class="loc">미야지마 오모테산도</div>
+    </div>
+  </div>
+
+  <div class="baggage" style="margin-top:22px">🍚 <b>먹거리 동선 요령</b> (아래 <a href="#rank40" style="color:var(--vermilion)">랭킹 40곳 지도</a>에 영업시간·주력메뉴 정리해뒀어) — 낮 관광지에서 명물(오코노미야키·굴·아나고메시) 챙기고, <b>밤엔 나가레카와·핫초보리 골목</b>에서 탄탄멘·마제멘·스시. 쿠니마츠·바쿠단야·오코노미무라가 다 도보 5~10분이라 밤 골목 순회로 로컬 맛 도장깨기 가능. 로컬집은 <b>휴무일·현금만</b> 많으니 주의(쿠니마츠 밤~새벽만, 츠루스시 월·일휴, 라멘요키 일휴, 옷쿤도·바쿠단야 수휴, 나가타야·핫쇼 화휴).</div>
+</section>
+<section class="wrap food" id="rank40">
+  <h2>타베로그 · 구글 랭킹 40곳</h2>
+  <p class="sub">1인 <b>¥5,000(약 5만원) 이하</b>만 추린 두 랭킹. 이름을 누르면 <b>영업시간·휴무·주력 메뉴</b>가 펼쳐지고 지도도 그쪽으로 이동해.</p>
+
+  <div class="r40-tabs">
+    <button class="r40-tab" data-set="t" data-on="1"><i class="dot"></i>타베로그 20</button>
+    <button class="r40-tab" data-set="g" data-on="1"><i class="dot"></i>구글맵 20</button>
+    <button class="r40-tab open" data-set="hotel" data-on="1"><i class="dot"></i>숙소</button>
+  </div>
+
+  <div class="maptools"><button type="button" class="mapreset" id="r40-reset">⤢ 전체 보기</button></div>
+  <div id="r40-map"></div>
+
+  <div class="r40-lists">
+    <div class="r40-col t"><h4>타베로그 평점순</h4><ol id="r40-list-t"></ol></div>
+    <div class="r40-col g"><h4>구글맵 평점순</h4><ol id="r40-list-g"></ol></div>
+  </div>
+
+  <div class="dayfit">
+    <p class="dayfit-h">📅 9/10(목)~13(일)에 <b>실제로 갈 수 있는 집</b>만 걸러보면</p>
+
+    <div class="dfrow bad">
+      <div class="dfk"><span class="ic">❌</span>아예 불가</div>
+      <ul>
+        <li><b>옷쿤도 마제멘</b><span>월·화만 영업</span></li>
+        <li><b>멘멘 카와구치</b><span>월요일 점심만</span></li>
+      </ul>
+    </div>
+
+    <div class="dfrow warn">
+      <div class="dfk"><span class="ic">⚠️</span>딱 하루만 가능</div>
+      <ul>
+        <li><b>로페즈</b><span>목요일 저녁 — 토·일 휴무</span></li>
+        <li><b>스마일</b><span>토요일 — 주말만 영업</span></li>
+        <li><b>元祖八昌</b><span>목요일 점심 — 일요일 휴무</span></li>
+        <li><b>바케츠 카미야초</b><span>토요일 저녁 — 수·목·금 휴무</span></li>
+      </ul>
+    </div>
+
+    <div class="dfrow ok">
+      <div class="dfk"><span class="ic">✅</span>아무 날이나 <small>안전망</small></div>
+      <ul>
+        <li><b>후미짱 나가레카와</b><span>11:30~23:30</span></li>
+        <li><b>삿소</b><span>무휴 · 11~20시</span></li>
+        <li><b>晴天を衝け</b><span>매일 · 새벽 2시까지</span></li>
+        <li><b>히욧코 카나야마초</b><span>매일 · 자정까지</span></li>
+        <li><b>마리후 커피</b><span>매일 8~20시</span></li>
+        <li><b>重富 ekie</b><span>매일 10~21시 · 히로시마역</span></li>
+      </ul>
+    </div>
+
+    <p class="dayfit-f">위 순서대로 예약·방문 우선순위를 잡고, 대기가 길거나 놓쳤을 때 <b>안전망 그룹</b>으로 갈아타면 돼.</p>
+  </div>
+  <p class="fm-src">메뉴·가격·영업시간은 후기·공개 정보 기준 대략치야. 계절 메뉴나 임시 휴무가 있을 수 있으니 <b>가기 전 구글맵으로 당일 영업 재확인</b>하는 게 안전해.</p>
+</section>
+
+<style>
+  .r40-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 14px}
+  .r40-tab{font:inherit;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;padding:8px 14px;border-radius:20px;cursor:pointer;border:1px solid var(--line);background:#fff;color:#6a7b7a;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+  .r40-tab .dot{width:9px;height:9px;border-radius:50%;background:currentColor;flex:none}
+  .r40-tab[data-on="1"][data-set="t"]{background:var(--vermilion);border-color:var(--vermilion);color:#fff}
+  .r40-tab[data-on="1"][data-set="g"]{background:var(--sea);border-color:var(--sea);color:#fff}
+  .r40-tab[data-on="1"][data-set="hotel"]{background:#1c2431;border-color:#1c2431;color:#f0c86a}
+  .r40-tab:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  #r40-map{height:430px;width:100%;border:1px solid var(--line);border-radius:2px;background:#e8e4da;z-index:0}
+  @media(max-width:600px){#r40-map{height:340px}}
+  .r40-pin{width:26px;height:26px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;box-shadow:0 2px 5px rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.85)}
+  .r40-pin span{transform:rotate(45deg)}
+  .r40-pin.t{background:var(--vermilion)}
+  .r40-pin.g{background:var(--sea)}
+  .r40-pin.hotel{background:#1c2431;color:#f0c86a;width:30px;height:30px;font-size:15px;border-radius:7px;transform:none}
+  .r40-pin.hotel span{transform:none}
+  .r40-lists{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+  @media(max-width:720px){.r40-lists{grid-template-columns:1fr}}
+  .r40-col h4{font-family:'Shippori Mincho',serif;font-size:13px;letter-spacing:.1em;margin:0 0 9px;padding-bottom:7px;border-bottom:2px solid}
+  .r40-col.t h4{color:var(--vermilion);border-color:var(--vermilion)}
+  .r40-col.g h4{color:var(--sea);border-color:var(--sea)}
+  .r40-col ol{margin:0;padding:0;list-style:none}
+  .r40-col li{border-bottom:1px solid var(--line)}
+  .r40-head{width:100%;text-align:left;font:inherit;font-family:'Noto Sans KR',sans-serif;cursor:pointer;background:transparent;border:0;padding:10px 4px;display:flex;gap:9px;align-items:baseline;border-radius:3px;transition:background .12s}
+  .r40-head:hover{background:#fff}
+  .r40-head:focus-visible{outline:2px solid var(--sea);outline-offset:-2px}
+  .r40-head[aria-expanded="true"]{background:#fff}
+  .r40-rk{flex:none;width:19px;text-align:right;font-size:11px;font-weight:700;color:#93a2a1;font-variant-numeric:tabular-nums}
+  .r40-nm{flex:1;font-size:13.5px;font-weight:500;line-height:1.4}
+  .r40-nm small{display:block;font-size:11px;color:#93a2a1;font-weight:300;margin-top:2px}
+  .r40-sc{flex:none;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+  .r40-col.t .r40-sc{color:var(--vermilion)}
+  .r40-col.g .r40-sc{color:var(--sea)}
+  .r40-chev{flex:none;width:12px;color:#93a2a1;font-size:10px;line-height:1;transition:transform .2s}
+  .r40-head[aria-expanded="true"] .r40-chev{transform:rotate(90deg)}
+  .r40-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .24s ease;background:#fff}
+  .r40-panel[data-open="1"]{grid-template-rows:1fr}
+  .r40-panel>div{overflow:hidden}
+  .r40-body{padding:2px 14px 14px 32px}
+  .r40-hours{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#42544f;font-weight:300;background:var(--paper-warm);border-radius:3px;padding:8px 10px;margin-bottom:11px;line-height:1.5}
+  .r40-hours .ic{flex:none;font-size:11px}
+  .r40-hours b{color:var(--sea);font-weight:500}
+  .r40-hours .off{color:var(--vermilion);font-weight:500}
+  .r40-label{font-size:10px;letter-spacing:.14em;color:#93a2a1;font-weight:500;margin:0 0 6px;font-family:'Shippori Mincho',serif}
+  .r40-menu{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+  .r40-menu li{border:0;display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:#42544f;font-weight:300;line-height:1.45}
+  .r40-menu li::before{content:'·';color:#93a2a1;flex:none}
+  .r40-menu .price{margin-left:auto;flex:none;font-size:11.5px;font-weight:500;color:var(--gold);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .r40-tip{margin:10px 0 0;font-size:12px;line-height:1.6;color:#42544f;font-weight:300;border-left:2px solid var(--verm-soft);padding-left:10px}
+  .r40-tip b{color:var(--ink);font-weight:500}
+  .r40-open{display:inline-block;margin-top:10px;font-size:11.5px;font-weight:400;color:var(--sea);text-decoration:none;border-bottom:1px dotted var(--sea)}
+  .fm-src{font-size:11.5px;color:#8a9998;margin-top:12px;font-weight:300;line-height:1.6}
+  .leaflet-popup-content-wrapper{border-radius:6px}
+  .r40-pop b{font-size:13.5px}
+  .r40-pop span{font-size:11.5px;color:#6a7b7a}
+</style>
+
+<script>
+(function(){
+  function initR40(){
+  if(!window.L){return;}
+  var HOTEL=[34.3887781,132.4449294];
+  /* [일본어명, 한글명, 점수, 부가, 카테고리·위치, 위도, 경도, 영업시간, 휴무, 메뉴, 팁] */
+  var T=[
+    ["ピッツァ ジューシー","피자 주시","3.84","¥5,000대","피자 · 후쿠로마치",34.3918968,132.457865,"화~금 11:30~15:00 / 18:00~21:00 · 토 ~21:30","월·일 휴무",[["마르게리타",""],["복숭아·생햄·부라타","¥2,420"],["허브 샐러드","¥1,420"],["점심 피자 세트","¥2,000대"]],"저녁은 예약 없으면 거의 못 들어가. <b>점심 세트가 예산·확률 둘 다 유리해.</b>"],
+    ["ビールスタンド重富","비어스탠드 시게토미","3.80","¥1,000대","생맥주 · 카나야마초",34.3916516,132.4667569,"월~토 17:00~19:00 (2시간만)","일 휴무",[["一度つぎ(한 번 붓기)","¥550~"],["二度つぎ(두 번 붓기)",""],["シャープつぎ",""]],"밥집 아니고 <b>맥주만</b> 파는 서서 마시는 곳. 같은 아사히를 붓는 방식만 바꿔 내줘. <b>1인 2잔·20분 제한.</b> 영업 2시간이라 일정 잡기 까다로움."],
+    ["お好み焼き 辰","타츠","3.77","¥1,000대","오코노미야키 · 히가시구",34.3957615,132.4806723,"수~일 11:00~14:00 / 18:00~22:00","월·화 휴무",[["오코노미야키(소바)","¥880~"],["오코노미야키(우동)","¥880~"]],"소바/우동 중 면 선택 — 소바가 바삭함이 더 좋다는 평. 좌석 6~7개짜리 초소형이라 대기 붙어."],
+    ["初ちゃん","하츠짱","3.77","¥5,000대","이자카야 · 히지야마시타",34.3883584,132.4691219,"화~토 17:00~23:00","월·일 휴무",[["中華そば(중화소바)",""],["닭·소 꼬치구이",""]],"⚠️ <b>외국인 손님을 받지 않는다는 후기가 여러 건</b> 있어. 랭킹상 순위는 높지만 실제 방문은 권하지 않아 — 참고용."],
+    ["お好み焼 三幸","산코","3.74","¥1,000대","오코노미야키 · 아사미나미구",34.4332354,132.4624791,"수~일 11:00~14:00 / 17:00~20:30","월·화 휴무",[["오코노미야키(肉玉そば)","¥1,000"],["야채 추가(W)","¥200"],["계란 추가(W)","¥100"]],"제면소 직영이라 <b>생면을 써</b> — 밀 향이 확실히 달라. 미슐랭 게재. 주차장 있음. <b>도심에서 멀어 일부러 가야 함.</b>"],
+    ["お好み焼き 八昌","핫쇼 (노보리초)","3.73","¥1,000대","오코노미야키 · 긴잔초",34.3937995,132.4664386,"수~일 10:00~17:00 (저녁 없음)","월·화 휴무",[["肉玉そば(고기·계란·소바)",""],["우동 변경 가능",""],["철판 해산물",""]],"히로시마 오코노미야키 <b>가장 유명한 계보</b>. 17시 마감이라 저녁엔 못 가 — 점심이나 이른 오후로. 일요일도 열려서 <b>귀국일 카드로 유용.</b>"],
+    ["いっちゃん 本店","잇짱 본점","3.71","~¥999","오코노미야키 · 히카리마치",34.3995223,132.4817249,"월·수~일 11:00~14:00 / 17:00~20:00","화 휴무",[["오코노미야키(돼지·계란·소바)",""],["굴 오코노미야키",""],["치즈 토핑",""]],"미슐랭 게재. 영어 메뉴 있고 철판 앞에서 굽는 걸 볼 수 있어. <b>현금만.</b> 20석 정도라 피크엔 대기."],
+    ["元祖八昌","간소 핫쇼","3.71","¥1,000대","오코노미야키 · 다케야초",34.3833082,132.4611704,"월~토 10:30~13:30 (점심만)","일 휴무",[["特製そば(특제 소바)","¥1,180"],["特製うどん","¥1,180"],["오징어튀김·파 토핑",""]],"여사장 두 분이 큰 철판 하나로 운영. <b>3시간만 열고 현금만.</b> 양배추를 충분히 쪄서 단맛을 끌어올리는 스타일."],
+    ["み乃家","미노야","3.71","¥3,000대","양식·함박 · 요코가와",34.4138992,132.4547522,"평일 11:30~14:00 / 17:30~21:00 · 주말 12:00~","무휴",[["함박스테이크 런치",""],["주말·공휴일 런치","¥2,480"],["가자미 뫼니에르","¥1,500"]],"洋食 백명점. <b>돼지고기 100% 함박</b>이 간판 — 자르면 육즙이 터짐. 혼자 다 하시니 예약 권장. <b>이 리스트에서 드물게 무휴.</b>"],
+    ["新天地 みっちゃん","신텐치 밋짱","3.70","¥1,000대","오코노미야키 · 신텐치",34.3910107,132.4629226,"수·금~일 11:00~14:00 / 17:00~21:00 · 목 저녁만","월·화 휴무",[["特製スペシャル(오징어·소바·돼지·계란)",""],["デラックス",""],["치즈·김치 토핑",""]],"밋짱 계열 본점 격. 소스를 적게 뿌리고 <b>테이블 소스병으로 알아서 추가</b>하는 방식. 피크 30분 대기 흔함."],
+    ["Masaru","마사루","3.70","¥2,000대","오코노미야키 · 히카리마치",34.3993842,132.4834502,"월·수~일 11:30~14:00 / 17:30~23:00","화 휴무",[["오코노미야키(소바)","¥980"],["할라피뇨 토핑","¥150"],["굴 국물",""],["소 갈빗살·오징어",""]],"<b>로페즈에서 수련한 주인장</b> — 할라피뇨가 시그니처. 소바/우동 반반 가능(「half」로 통함). 23시까지 하고 히로시마역 도보권. <b>엔화 현금만.</b>"],
+    ["蕎麦きり吟","소바키리 긴","3.69","¥1,000대","소바 · 단바라",34.3900273,132.4758482,"월·화·목~일 11:30~15:00 (점심만)","수 휴무",[["오리 소바(따뜻/찬)",""],["아나고(붕장어) 튀김",""],["야마카케 소바",""],["다시마키 계란",""]],"そば 백명점. <b>붕장어 튀김이 숨은 주인공</b>이라는 후기 다수. 양이 적은 편이라 大盛り 권장."],
+    ["かんらん車","칸란샤","3.68","¥1,000대","오코노미야키 · 도바시",34.3955868,132.4476023,"화·수·목·토·일 11:30~13:00 / 18:00~19:30","월·금 휴무",[["かんらん車スペシャル(오징어·새우·고기·계란)",""],["기본 오코노미야키","¥800"],["오뎅",""],["감자 샐러드",""]],"🏨 <b>숙소에서 도보권(도바시)</b>. 10~12석 초소형이고 <b>영업이 점심 1시간 반 + 저녁 1시간 반뿐</b>이라 시간 못 맞추면 그냥 못 먹어. 스페셜의 소바가 절품이라는 평."],
+    ["Napul","나풀","3.68","¥3,000대","나폴리 피자 · 쇼코센터",34.3748196,132.394416,"수~일 11:30~13:30 / 18:30~20:40","월·화 휴무",[["Zucca(소시지·단호박)","¥1,840"],["Provola(훈제 모차렐라)",""],["마르게리타",""],["파스티에라 케이크",""]],"ピザ 백명점. 나폴리 출신 리뷰어도 인정한 정통파. <b>예약 필수</b> — 오픈 시점에 이미 만석. 니시구라 시내에서 꽤 멀어."],
+    ["ロペズ","로페즈","3.68","¥1,000대","오코노미야키 · 구스노키초",34.4096073,132.4544722,"월~금 16:30~23:00 (저녁만)","토·일 휴무",[["오코노미야키 + 할라피뇨",""],["면 없는 오코노미야키",""],["중남미 사이드 요리",""]],"⭐ <b>두 랭킹에 동시 진입한 유일한 집</b>(타베로그 3.68 / 구글 4.7). 할라피뇨를 처음 넣은 곳 — 기름진 맛을 끊어줘. <b>토·일 휴무라 이번 일정엔 목요일뿐.</b>"],
+    ["お好み焼 ひらの","히라노","3.67","~¥999","오코노미야키 · 미나미마치",34.3739831,132.4717344,"월·수~일 11:00~13:30 / 17:00~20:00","화 휴무",[["そばライス(소바+밥)",""],["오코노미야키(두툼한 삼겹)",""]],"<b>「소바라이스」를 처음 낸 집.</b> 산프레체 선수 사인이 벽을 덮고 있어. 점심 30분 이상 대기 흔함."],
+    ["OKOじゃ","오코자","3.66","¥1,000대","오코노미야키 · 사에키구 유키초",34.437517,132.299277,"수~일 11:00~14:00 / 17:00~19:30","월·화 휴무",[["이노시시(멧돼지) 오코노미야키",""],["기본 肉玉そば",""],["매운 소바",""]],"<b>야생 멧돼지 고기 오코노미야키</b>를 내는 희귀한 집. 다만 도심에서 20km+ 산 쪽이라 <b>차 없으면 사실상 불가.</b>"],
+    ["ふみちゃん 流川店","후미짱 나가레카와","3.65","¥1,000대","오코노미야키 · 나가레카와",34.3922413,132.4645639,"월·수~토 11:30~23:30 · 일 ~22:00","화 휴무",[["후미짱 스페셜(소바)",""],["기본 소바 오코노미야키","¥800"],["소 힘줄(스지)",""],["오징어 다리",""]],"⏰ <b>이 리스트에서 가장 유연한 오코노미야키</b> — 11:30~23:30 통영업에 도심 중심. 다른 집 놓쳤을 때 안전망으로 쓰기 좋아."],
+    ["のんのん","논논","3.65","¥1,000대","오코노미야키 · 단바라미나미",34.383995,132.477813,"화~금 11:00~14:00 · 토·일 11:00~14:00 / 17:00~22:00","월 휴무",[["오코노미야키(토핑 선택형)",""],["철판 사이드",""]],"백명점 선출. 채식 요청도 맞춰준다는 후기. <b>평일은 점심만, 저녁은 주말에만</b> 열려."],
+    ["ビールスタンド重富 ekie","시게토미 ekie점","3.64","~¥999","생맥주 · 히로시마역",34.3984384,132.4755151,"매일 10:00~21:00","무휴",[["一度つぎ","¥700"],["二度つぎ","¥700"],["ミルコ(거품 위주)","¥400"]],"본점의 2호점인데 <b>히로시마역 안이라 매일 10~21시 내내 열려</b> — 본점 2시간 룰 못 맞출 때 대안. <b>귀국일 마지막 한 잔으로 최적.</b>"]
+  ];
+  var G=[
+    ["Junior","주니어","4.8","849","오코노미야키·이자카야 · 다테마치",34.3940465,132.4597853,"화~일 12:00~14:00 / 18:15~22:00","월 휴무",[["오코노미야키",""],["마늘종 구이",""],["닭 목살",""],["오징어 다리 구이",""],["김치+소고기",""]],"<b>좌석 8개</b>. 18:15 오픈 후 30분 안에 차. 철판 안주가 다 좋아서 이자카야처럼 마시기 좋음. 주인장이 외국어 문구 노트로 응대해줘."],
+    ["寺西コーヒー","테라니시 커피","4.8","1,030","킷사텐 · 다카라마치",34.384969,132.462009,"월~토 8:00~18:30","일 휴무",[["오리지널 블렌드",""],["토스트 + 오믈렛 세트",""],["샌드위치 세트",""],["케이크 세트",""]],"49년 된 목재 앤티크 킷사텐. <b>8시 오픈이라 조식으로 최적.</b> 양이 가격 대비 후해. 점심엔 줄 섬."],
+    ["広島牡蠣処 バケツ 紙屋町","바케츠 카미야초","4.8","509","굴 이자카야 · 카미야초",34.3934805,132.456216,"월·화·토·일 17:00~22:30","수·목·금 휴무",[["생굴 (버킷)",""],["구운굴 모듬 세트",""],["굴 그라탕",""],["굴튀김",""],["장어 튀김",""]],"⚠️ <b>주 4일만 영업(수·목·금 휴무)</b>이라 날짜 확인 필수 — 이번 일정에선 토·일만 가능. 주인장 혼자 하니 시간 걸리는 대신 손질이 정성. 영어·중국어 메뉴 있음."],
+    ["お好み村 鉄","오코노미무라 테츠","4.8","105","오코노미야키 · 오코노미무라 2F",34.391294,132.4618768,"오코노미무라 빌딩 영업시간 준함 (현장 확인)","확인 필요",[["오코노미야키",""],["구운 굴",""]],"오코노미무라 빌딩 2층 H호. <b>여러 점포 중 평점이 가장 높은 곳</b> — 어느 집 갈지 고민되면 여기. 부부 운영. 개별 영업시간이 공개돼 있지 않아 현장에서 확인해야 해."],
+    ["もみじ亭","모미지테이","4.7","1,698","오코노미야키 · 카미야초",34.393527,132.45624,"일~목 12:00~16:00 / 17:00~22:00 · 금·토 ~23:30","무휴",[["히로시마 오코노미야키",""],["철판 사이드",""]],"<b>빌딩 3층</b>(1·2층은 다른 가게 — 헷갈리기 쉬움). 최대 4인까지만 받고 좁아서 피크엔 줄 길어. <b>오후 주문 마감 15시 고정.</b> 무휴라 일정 맞추긴 쉬움."],
+    ["Marifu Coffee Roaster","마리후 커피","4.7","1,498","카페·조식 · 카미야초",34.3937905,132.4589614,"매일 8:00~20:00","무휴",[["카라멜 라떼",""],["조식 샌드위치",""],["얼그레이 와플",""],["카츠산도",""],["프렌치토스트",""]],"<b>매일 8시~20시라 조식·야식 다 커버</b> — 일요일에도 여는 몇 안 되는 곳이라 귀국일 아침 카드. 좌석이 좁고 2층으로 올라가야 함."],
+    ["かき小屋 ひよっ子商店 金屋町","히욧코 쇼텐 카나야마초","4.7","1,093","굴 이자카야 · 카나야마초",34.391278,132.4665012,"매일 16:00~24:00","무휴",[["버터 굴",""],["굴 그라탕",""],["굴튀김",""],["굴 살사",""],["굴 미소 야채스틱",""]],"히욧코 계열 중 <b>평점이 가장 높은 지점</b>. 버터 굴이 압도적 추천. 무한리필도 가능. <b>매일 자정까지라 늦은 저녁에 안전한 선택.</b> 오토시(자리세) 붙음."],
+    ["ロペズ","로페즈","4.7","1,009","오코노미야키 · 구스노키초",34.4096073,132.4544722,"월~금 16:30~23:00 (저녁만)","토·일 휴무",[["오코노미야키 + 할라피뇨",""],["면 없는 오코노미야키",""],["중남미 사이드 요리",""]],"⭐ <b>타베로그 리스트에도 든 유일한 집.</b> 종이에 이름·인원·전화번호 적어 내는 대기 방식. <b>토·일 휴무 → 이번 일정엔 목요일 저녁뿐.</b>"],
+    ["Smile Okonomiyaki","스마일","4.7","654","오코노미야키 · 카나야마초",34.3921,132.4682242,"토·일 11:00~14:00 / 16:00~20:50","월~금 휴무",[["히로시마식 오코노미야키",""],["오사카식 오코노미야키",""],["소고기 버전",""]],"⚠️ <b>주말만 영업</b>이라 이번 일정에선 토요일 하나뿐. 철판 앞 카운터가 3석이라 굽는 걸 보려면 일찍. 히로시마식/오사카식 비교 가능. 채식·알레르기 대응 좋음."],
+    ["Halelea","할렐레아","4.7","334","스테이크 정식 · 고마치",34.387643,132.4562763,"화~토 11:00~14:30 / 17:30~20:00","월·일 휴무",[["플랭크 스테이크 정식",""],["스테이크 + 카레라이스","¥1,880"],["일일 런치 세트","¥980"]],"고기 정식 전문. <b>세트에 양배추 샐러드·두부·밥·국이 다 붙어</b> 나와서 가성비 좋음. 혼자 다 운영. 20시 마감이라 저녁은 이른 편."],
+    ["TOCOTON1","토코톤1","4.7","267","라멘 · 신텐치",34.3913919,132.4632576,"목~일 11:00~14:00 / 18:00~01:00","월~수 휴무",[["콜라겐 돈코츠 라멘",""],["토리파이탄 유즈 시오",""],["콩나물(매콤) 추가",""]],"<b>주인장 혼자 하는 1인 라멘집.</b> 터치스크린 영어 지원. <b>새벽 1시까지</b> 하니 미야지마에서 늦게 돌아온 날 야식으로 딱(금요일 영업)."],
+    ["おっくん堂","옷쿤도 마제멘","4.6","1,462","마제멘 · 오테마치",34.3894583,132.454225,"월·화 11:00~21:30","수~일 휴무",[["마제멘(국물 없는 라멘)",""],["면 양·온도·매운맛 선택",""],["교자",""],["히로시마 굴튀김",""]],"❌ <b>월·화만 영업 → 이번 일정(목~일)에는 갈 수 없어.</b> 평화공원 도보권이라 아깝지만 날짜가 안 맞음. 다음 방문용으로 기억해둘 집."],
+    ["一平や","잇페이야","4.6","871","마제멘·탄탄면 · 교바시초",34.3938293,132.4719277,"월~금 11:30~14:00 / 18:00~21:00 · 토 11:30~14:20","일 휴무",[["赤(고추) 마제멘",""],["黒(후추) 마제멘",""],["두유 탄탄면(차가움)",""],["밥 추가",""]],"히로시마역 도보권. 빨강(고추)/검정(후추) 두 축, 매운 단계·면 양 조절 가능. 다 먹고 밥 넣어 소스 훑는 게 필수. <b>토요일은 점심만, 일요일 휴무. 현금만.</b>"],
+    ["Kanayama Base","카나야마 베이스","4.6","347","카페·정식 · 카나야마초",34.3918735,132.4684949,"월~수·금~일 8:00~19:30","목 휴무",[["카나야마 산도",""],["구운 흰살생선 정식","¥1,000"],["커피",""]],"12석 정도의 작은 카페. 8시 오픈이라 조식 가능. 라이브 음악을 하는 날도 있음. 알레르기 대응 좋다는 후기."],
+    ["麺麺かわぐち","멘멘 카와구치","4.6","223","라멘 · 나카마치",34.3905702,132.4598887,"월 11:00~13:30 (주 1회)","화~일 휴무",[["검은마늘 버터 미소 라멘",""],["미소 라멘",""],["시오 라멘",""]],"❌ <b>월요일 점심 2시간 반만 영업 → 이번 일정에는 불가능.</b> 이 리스트에서 가장 문 열기 어려운 집이야."],
+    ["福福寿司 光町","후쿠후쿠 스시","4.6","112","스시 · 히가시구",34.4013542,132.4803727,"월~토 11:30~14:00 / 17:30~23:00","일 휴무",[["니기리 세트","¥1,000"],["사시미",""],["미소 우동",""]],"💰 <b>1,000엔 니기리 세트가 이 리스트 최고 가성비.</b> 좌석 12개짜리 부부 가게, 손님 대부분 현지인. 23시까지 하고 히로시마역 도보권."],
+    ["ひよっ子商店 えびす通り","히욧코 쇼텐 에비스","4.5","1,888","굴 무한리필 · 에비스초",34.3922662,132.465021,"매일 17:00~01:00","무휴",[["굴 무한리필 코스","¥4,000~5,000"],["맥주 무한리필 추가",""],["굴튀김·구운굴·굴밥",""]],"<b>굴+맥주 무한리필이 1인 4~5천엔</b>으로 예산 딱 맞음. 생굴 사시미는 코스에 없고 조리 굴 위주. 매일 새벽 1시까지. 계산 확인은 한 번 해."],
+    ["晴天を衝け","세이텐오츠케","4.5","830","굴·와규 라멘 · 나가레카와",34.3892688,132.4645035,"매일 11:30~14:30 / 18:00~02:00","무휴",[["와규 라멘",""],["굴 라멘(기간 한정)",""],["히로시마풍 츠케멘",""],["굴 무스 토핑",""]],"<b>매일 새벽 2시까지</b>라 늦은 밤 최강 카드. 10석 정도라 오픈 15분 전 도착 권장. <b>굴 라멘은 시즌 한정이라 9월엔 없을 수도</b> — 그럼 와규 라멘이나 참깨 츠케멘으로."],
+    ["海鮮酒場 牡蠣いかだ屋","카키이카다야","4.5","638","굴·해산물 · 후쿠로마치",34.3919335,132.4612473,"목~일 17:00~02:00","월~수 휴무",[["생굴 모듬 플래터",""],["치즈 구운 굴",""],["새우튀김",""],["돼지 구이",""],["소바 츠케멘",""]],"<b>목~일만 영업 = 이번 일정과 딱 겹쳐.</b> 굴 전문인데 오히려 새우튀김·돼지구이·소바가 더 좋았다는 후기가 많아. 손님 대부분 현지인."],
+    ["颯爽","삿소","4.5","431","국물없는 탄탄면 · 미카와초",34.3909337,132.4618879,"월·화·수·금·토·일 11:00~20:00 · 목 ~15:00","무휴",[["국물없는 탄탄면(매운맛 조절)",""],["국물 있는 탄탄면",""],["밥 추가",""]],"⏰ <b>11~20시 통영업 + 무휴</b>라 이 리스트에서 시간 제약이 가장 적어. 식권기 주문, 영어 메뉴 요청 가능. 회전이 빨라 대기 짧음."]
+  ];
+
+  var map=L.map('r40-map',{scrollWheelZoom:false}).setView([34.3925,132.4600],14);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CARTO',maxZoom:19}).addTo(map);
+  map.on('click',function(){map.scrollWheelZoom.enable()});
+  map.on('mouseout',function(){map.scrollWheelZoom.disable()});
+
+  function icon(kind,n){
+    return L.divIcon({html:'<div class="r40-pin '+kind+'"><span>'+n+'</span></div>',className:'',
+      iconSize:[26,26],iconAnchor:[13,24],popupAnchor:[0,-22]});
+  }
+  function gmaps(q){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q)}
+
+  var groups={t:L.layerGroup().addTo(map),g:L.layerGroup().addTo(map),hotel:L.layerGroup().addTo(map)};
+  L.marker(HOTEL,{icon:icon('hotel','\u2605'),zIndexOffset:1000})
+    .bindPopup('<div class="r40-pop"><b>ORIGAMINN</b><br><span>숙소 · 3박 · 도바시 정류장 앞</span></div>')
+    .addTo(groups.hotel);
+  L.circle(HOTEL,{radius:800,color:'#1c2431',weight:1.2,fillColor:'#1c2431',fillOpacity:.05,dashArray:'5 4'}).addTo(groups.hotel);
+
+  var openPanel=null,openHead=null;
+  function collapse(){
+    if(openPanel){openPanel.dataset.open='0';openHead.setAttribute('aria-expanded','false');}
+    openPanel=null;openHead=null;
+  }
+
+  function build(kind,rows){
+    var ol=document.getElementById('r40-list-'+kind);
+    rows.forEach(function(r,i){
+      var jp=r[0],kr=r[1],score=r[2],extra=r[3],cat=r[4],lat=r[5],lng=r[6],hours=r[7],off=r[8],menu=r[9],tip=r[10];
+      var meta=kind==='t'?(cat+' · '+extra):(cat+' · 리뷰 '+extra+'개');
+      var label=kind==='t'?'타베로그 '+score:'구글 ★'+score;
+      var link=gmaps(jp+' 広島');
+
+      var m=L.marker([lat,lng],{icon:icon(kind,i+1),title:kr})
+        .bindPopup('<div class="r40-pop"><b>'+kr+'</b><br><span>'+jp+' · '+label+'<br>'+meta+'<br>🕘 '+hours+'</span></div>');
+      m.addTo(groups[kind]);
+
+      var li=document.createElement('li');
+      var pid='r40-p-'+kind+'-'+i;
+      var head=document.createElement('button');
+      head.type='button';head.className='r40-head';
+      head.setAttribute('aria-expanded','false');head.setAttribute('aria-controls',pid);
+      head.innerHTML='<span class="r40-rk">'+(i+1)+'</span>'+
+        '<span class="r40-nm">'+kr+'<small>'+cat+'</small></span>'+
+        '<span class="r40-sc">'+score+'</span><span class="r40-chev">&#9656;</span>';
+
+      var panel=document.createElement('div');
+      panel.className='r40-panel';panel.id=pid;panel.dataset.open='0';
+      var items=menu.map(function(x){
+        return '<li>'+x[0]+(x[1]?'<span class="price">'+x[1]+'</span>':'')+'</li>';
+      }).join('');
+      panel.innerHTML='<div><div class="r40-body">'+
+        '<div class="r40-hours"><span class="ic">🕘</span><span><b>'+hours+'</b><br><span class="off">'+off+'</span></span></div>'+
+        '<p class="r40-label">주력 메뉴</p><ul class="r40-menu">'+items+'</ul>'+
+        '<p class="r40-tip">'+tip+'</p>'+
+        '<a class="r40-open" href="'+link+'" target="_blank" rel="noopener">구글맵에서 열기 →</a>'+
+        '</div></div>';
+
+      head.addEventListener('click',function(){
+        var was=panel.dataset.open==='1';
+        collapse();
+        if(!was){panel.dataset.open='1';head.setAttribute('aria-expanded','true');openPanel=panel;openHead=head;}
+        map.setView([lat,lng],16,{animate:true});
+        m.openPopup();
+      });
+
+      li.appendChild(head);li.appendChild(panel);ol.appendChild(li);
+    });
+  }
+  build('t',T);build('g',G);
+
+  document.querySelectorAll('#rank40 .r40-tab').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var k=btn.dataset.set,on=btn.dataset.on==='1';
+      btn.dataset.on=on?'0':'1';
+      if(on){map.removeLayer(groups[k]);}else{groups[k].addTo(map);}
+    });
+  });
+
+  var pts=[L.latLng(HOTEL[0],HOTEL[1])];
+  T.concat(G).forEach(function(r){pts.push(L.latLng(r[5],r[6]));});
+  var BOUNDS=L.latLngBounds(pts).pad(0.08);
+
+  /* 탭이 숨겨진 상태에서 만들어지면 컨테이너 높이가 0이라 줌이 0(세계지도)으로 떨어짐.
+     보이게 된 시점에 크기를 다시 재고 bounds를 다시 맞춘다. */
+  var fitted=false;
+  window.__fitR40=function(force){
+    var el=document.getElementById('r40-map');
+    if(!el||!el.clientHeight) return;      /* 아직 숨어 있으면 패스 */
+    map.invalidateSize();
+    if(!fitted||force){map.fitBounds(BOUNDS);fitted=true;}
+  };
+  window.__fitR40();
+  if(window.ResizeObserver){
+    new ResizeObserver(function(){window.__fitR40();}).observe(document.getElementById('r40-map'));
+  }
+  var reset=document.getElementById('r40-reset');
+  if(reset){reset.addEventListener('click',function(){map.invalidateSize();map.fitBounds(BOUNDS);});}
+  }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initR40);}
+  else{initR40();}
+})();
+</script>
+</div>
+
+<div class="pane" id="pane-stay">
+<section class="wrap hotels">
+  <h2>숙소 · 확정</h2>
+  <p class="sub">ORIGAMINN 한 곳에 3박. 짐 옮김 0회, 체크인·아웃 각 1회.</p>
+  <div class="hgrid">
+    <div class="hcard pick" style="grid-column:1/-1">
+      <span class="badge">확정 · 3박</span>
+      <h3>ORIGAMINN</h3>
+      <div class="rate">★ 4.6 (리뷰 92) · 아파트형 스튜디오</div>
+      <p>주소 <b>13-14 Kawaramachi, Naka-ku, Hiroshima 730-0856</b> (히로시마시 나카구 가와라마치). 세탁기·주방·욕실 갖춘 스튜디오형이라 3박 내내 한 방을 쓰기에 유리해. 셀프 체크인이라 도착·출발 시간에 안 묶이고, 리뷰에서 "조용하고 침구가 좋다"는 평이 반복돼.</p>
+      <p style="margin-top:9px"><b>위치가 이번 일정에 특히 잘 맞는 이유</b> — 문 앞이 <b>도바시(土橋) 전차 정류장</b>이야. 히로덴 2·3·6·8호선이 교차하는 환승 거점이라 ① 미야지마구치까지 <b>환승 없이 직통</b>, ② 히로시마역도 한 번에, ③ 평화공원은 도보 10분. 미야지마 당일치기를 하는 일정에선 평화공원 앞 호텔보다 오히려 나은 자리야.</p>
+      <p style="margin-top:9px"><b>미리 확인할 것</b> — 아파트형이라 프런트 상주가 없을 수 있어. 밤 도리이 보고 늦게(24시 무렵) 돌아오는 날의 <b>야간 출입 방법</b>과, 귀국일 <b>체크아웃 후 짐 보관 가능 여부</b>를 사전에 물어봐. 세탁기가 있으니 3박이면 짐을 더 줄일 수 있어.</p>
+      <span class="htag">도바시 정류장 앞</span><span class="htag">미야지마 직통</span><span class="htag">세탁기</span><span class="htag">셀프 체크인</span><span class="htag">평화공원 도보 10분</span>
+    </div>
+  </div>
+  <div class="baggage" style="margin-top:16px">💰 <b>당일치기로 바꾼 효과</b> — 미야지마 료칸 1박(가이세키·온천 포함이면 1인 2~4만 엔대)이 빠지고 그 밤을 ORIGAMINN에서 보내니, 숙박비가 크게 줄어. 대신 포기하는 건 <b>아침 도리이와 료칸 온천</b> 두 가지. 온천이 아쉬우면 도심 센토나 미야하마 온천 반나절 코스를 Day 3에 붙일 수 있어.</div>
+</section>
+<section class="wrap">
+  <div class="tips">
+    <h2>계획 메모</h2>
+    <ul>
+      <li><span class="n">1</span><div><b>짐 옮김 0회</b> — ORIGAMINN 3박 고정. 체크인·아웃 각 한 번. 미야지마엔 작은 가방만. 세탁기가 있어서 옷도 줄일 수 있어.</div></li>
+      <li><span class="n">2</span><div><b>준비 초간단</b> — VPN·알리페이 불필요. 이심 하나, 구글맵, 카드·현금 그대로. 세팅 스트레스 제로.</div></li>
+      <li><span class="n">3</span><div><b>페리 + 막차</b> — 미야지마구치에서 JR 페리 또는 마츠다이 기선, 약 10분. 당일치기라 <b>미야지마발 막차(대략 22시 전후)와 히로덴 막차를 반드시 현지 시간표로 확인</b>하고 한 편 여유 두기. 놓치면 섬에서 못 나와.</div></li>
+      <li><span class="n">4</span><div><b>요일이 곧 제약</b> — 맛집 절반이 주 2일 휴무라 <b>목요일=로페즈, 토요일=스마일·바케츠</b>처럼 하루밖에 없는 집이 있어. 일요일(귀국일)은 휴무가 가장 많아. 랭킹 40곳 섹션의 아코디언에서 영업시간 확인.</div></li>
+      <li><span class="n">5</span><div><b>9월 날씨 · 굴 시즌</b> — 세토내해는 내만이라 태풍 순화. 다만 <b>히로시마 굴 제철은 10월~3월</b>이라 9월엔 시즌 한정 굴 메뉴가 빠질 수 있어. 굴을 꼭 먹을 거면 무한리필집(연중 운영) 쪽이 안전.</div></li>
+    </ul>
+  </div>
+</section>
+</div>
+
+<footer>3박4일 · ORIGAMINN 3박 고정 + 미야지마 당일치기 · 랭킹 40곳 영업시간·주력메뉴 포함 · 사진 자리는 Wikimedia 직링크로 교체 가능</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  var map=L.map('map',{scrollWheelZoom:false}).setView([34.34,132.39],11);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19}).addTo(map);
+  function pin(c){return L.divIcon({className:'',html:'<div style="width:16px;height:16px;background:'+c+';border:2.5px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 1px 4px rgba(0,0,0,.35)"></div>',iconSize:[16,16],iconAnchor:[8,16],popupAnchor:[0,-16]});}
+  var CITY='#2b5f6e',MIYA='#d24b34',FERRY='#5dcaa5',FOOD='#b88a3e',CAFE='#7a5c9a';
+  var P=[
+    // 관광지 · 히로시마 도심
+    ["평화기념공원 · 원폭돔",34.395483,132.453592,CITY],
+    ["평화기념자료관",34.391503,132.453158,CITY],
+    ["슛케이엔 정원",34.400483,132.467721,CITY],
+    ["히로시마성",34.402746,132.459106,CITY],
+    ["혼도리 상점가",34.392868,132.460488,CITY],
+    // 관광지 · 미야지마
+    ["미야지마구치 페리 선착장",34.310906,132.305293,FERRY],
+    ["미야지마 오모테산도 상점가",34.298975,132.321836,MIYA],
+    ["이쓰쿠시마 신사 오도리이",34.297307,132.318133,MIYA],
+    ["미센산 로프웨이",34.293259,132.326751,MIYA],
+    // 먹거리 · 명물/로컬
+    ["나가타야 (오코노미야키 名店)",34.394216,132.454485,FOOD],
+    ["핫쇼 (오코노미야키 名店)",34.393800,132.466439,FOOD],
+    ["오코노미무라",34.391434,132.461901,FOOD],
+    ["쿠니마츠 (시루나시 탄탄멘)",34.390011,132.463807,FOOD],
+    ["옷쿤도 마제멘",34.389458,132.454225,FOOD],
+    ["츠루 스시 (오마카세)",34.390005,132.463703,FOOD],
+    ["바쿠단야 (히로시마 츠케멘)",34.391449,132.462500,FOOD],
+    ["라멘 요키 (히로시마 라멘)",34.365370,132.430467,FOOD],
+    ["카키야 (미야지마 굴)",34.298540,132.321704,FOOD],
+    // 카페
+    ["오브스큐라 커피 로스터스",34.392626,132.457694,CAFE],
+    ["미야지마 커피",34.297937,132.321099,CAFE]
+  ];
+  var g=[];
+  // 숙소 확정 · ORIGAMINN (가와라마치 · 도바시 정류장 앞) · 3박
+  var HOTEL=[34.3887781,132.4449294];
+  L.circle(HOTEL,{radius:850,color:'#1c2431',weight:1.5,fillColor:'#1c2431',fillOpacity:.06,dashArray:'5 4'}).addTo(map);
+  var hIcon=L.divIcon({className:'',html:'<div style="width:30px;height:30px;background:#1c2431;border:2.5px solid #fff;border-radius:7px;box-shadow:0 2px 7px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center"><span style="color:#f0c86a;font-size:15px;line-height:1">\u2605</span></div>',iconSize:[30,30],iconAnchor:[15,15],popupAnchor:[0,-16]});
+  g.push(L.marker(HOTEL,{icon:hIcon,zIndexOffset:1000}).addTo(map).bindPopup('<b>ORIGAMINN · 숙소 확정 (3박)</b><br>13-14 Kawaramachi, Naka-ku<br>도바시(土橋) 정류장 앞 · 미야지마구치 직통<br>평화공원 도보 10분'));
+  P.forEach(function(p){g.push(L.marker([p[1],p[2]],{icon:pin(p[3])}).addTo(map).bindPopup('<b>'+p[0]+'</b>'));});
+  // 미야지마 당일치기 동선: 숙소(도바시) → 미야지마구치 → 도리이 (왕복)
+  L.polyline([HOTEL,[34.3113,132.3037],[34.2973,132.3181]],{color:'#e07a63',weight:2.5,opacity:.5,dashArray:'6 6'}).addTo(map);
+  var MAIN_BOUNDS=L.featureGroup(g).getBounds().pad(0.16);
+  var mainFitted=false;
+  window.__fitMain=function(force){
+    var el=document.getElementById('map');
+    if(!el||!el.clientHeight) return;
+    map.invalidateSize();
+    if(!mainFitted||force){map.fitBounds(MAIN_BOUNDS);mainFitted=true;}
+  };
+  window.__fitMain();
+  if(window.ResizeObserver){
+    new ResizeObserver(function(){window.__fitMain();}).observe(document.getElementById('map'));
+  }
+  var mreset=document.getElementById('map-reset');
+  if(mreset){mreset.addEventListener('click',function(){map.invalidateSize();map.fitBounds(MAIN_BOUNDS);});}
+
+  // 이미지 자리: src가 비어있으면 placeholder 유지, 채워지면 사진 표시
+  document.querySelectorAll('.photo img').forEach(function(img){
+    function sync(){
+      var ph=img.parentElement.querySelector('.ph');
+      var ok=img.getAttribute('src') && img.complete && img.naturalWidth>0;
+      if(ph) ph.style.display = ok ? 'none' : 'flex';
+    }
+    img.addEventListener('load',sync);
+    img.addEventListener('error',function(){var ph=img.parentElement.querySelector('.ph');if(ph)ph.style.display='flex';});
+    sync();
+  });
+
+  /* ---- 탭 전환 ---- */
+  (function(){
+    var nav=document.getElementById('tabnav');
+    if(!nav) return;
+    var btns=nav.querySelectorAll('.tb');
+    function show(name,scroll){
+      document.querySelectorAll('.pane').forEach(function(p){
+        p.classList.toggle('is-on', p.id==='pane-'+name);
+      });
+      btns.forEach(function(b){
+        if(b.dataset.pane===name){b.setAttribute('aria-current','true');}
+        else{b.removeAttribute('aria-current');}
+      });
+      if(location.hash!=='#'+name){history.replaceState(null,'','#'+name);}
+      /* 숨어 있던 Leaflet 지도는 크기가 0이라 줌이 풀려 있음 → 다시 재고 bounds 재적용 */
+      setTimeout(function(){
+        window.dispatchEvent(new Event('resize'));
+        if(window.__fitMain) window.__fitMain();
+        if(window.__fitR40) window.__fitR40();
+      },80);
+      if(scroll){window.scrollTo({top:0,behavior:'smooth'});}
+    }
+    btns.forEach(function(b){
+      b.addEventListener('click',function(){show(b.dataset.pane,true);});
+    });
+    var valid=['overview','plan','eat','stay'];
+    var h=(location.hash||'').replace('#','');
+    show(valid.indexOf(h)>-1 ? h : 'overview', false);
+    /* 맛집 탭 안쪽 링크(#rank40)를 눌러도 탭이 먼저 열리게 */
+    document.querySelectorAll('a[href="#rank40"]').forEach(function(a){
+      a.addEventListener('click',function(e){
+        e.preventDefault();
+        show('eat',false);
+        setTimeout(function(){
+          var el=document.getElementById('rank40');
+          if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+        },80);
+      });
+    });
+  })();
+</script>
+</body>
+</html>
